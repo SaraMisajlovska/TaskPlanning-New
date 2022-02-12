@@ -1,0 +1,86 @@
+package mk.ukim.finki.taskplanning.service.impl;
+
+import mk.ukim.finki.taskplanning.model.Status;
+import mk.ukim.finki.taskplanning.model.Task;
+import mk.ukim.finki.taskplanning.model.User;
+import mk.ukim.finki.taskplanning.repository.TaskRepository;
+import mk.ukim.finki.taskplanning.repository.UserRepository;
+import mk.ukim.finki.taskplanning.service.TaskService;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class TaskServiceImpl implements TaskService {
+
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+
+    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository) {
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
+    }
+
+    public Optional<Task> findById(Long id){
+        return taskRepository.findById(id);
+    }
+
+    @Override
+    public List<Task> findAll() {
+        return taskRepository.findAll();
+    }
+
+    @Override
+    public Optional<Task> findByTitle(String title) {
+        return taskRepository.findByTitle(title);
+    }
+
+    @Transactional
+    @Override
+    public Task create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException();
+        }
+        User user = userRepository.findById(userId).get();
+
+        Task t = new Task(title, description, Status.valueOf(status),dependsOn.size()>0 ? dependsOn : new ArrayList<>(), user, startTime, endTime);
+        taskRepository.save(t);
+        return t;
+    }
+
+    @Override
+    public void delete(Long id) {
+            taskRepository.deleteById(id);
+    }
+
+    @Transactional
+    @Override
+    public Optional<Task> save(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+        if (title.isEmpty() || status.isEmpty() || startTime==null || endTime==null){
+            throw new IllegalArgumentException();
+        }
+        User user = userRepository.findById(userId).get();
+        if(taskRepository.findById(id).isPresent()) {
+            Task task = taskRepository.getById(id);
+            task.setTitle(title);
+            task.setStatus(Status.valueOf(status));
+            task.setDescription(description);
+            task.setDependsOn(dependsOn);
+            task.setStartTime(startTime);
+            task.setEndTime(endTime);
+
+
+            task.setUser(user);
+
+            return Optional.of(task);
+        }
+        else
+            return Optional.of(taskRepository.save(new Task(title, description, Status.valueOf(status),dependsOn.size()>0 ? dependsOn : new ArrayList<>(), user, startTime, endTime)));
+    }
+
+
+}
