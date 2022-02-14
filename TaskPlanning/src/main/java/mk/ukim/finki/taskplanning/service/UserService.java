@@ -13,4 +13,6 @@ public interface UserService {
 
     //String name, String surname, String username, String password, List<Task> tasks
     User register(String name, String surname, String username, String password, String repeatPassword, List<Task> tasks );
+
+    List<User> findAll();
 }

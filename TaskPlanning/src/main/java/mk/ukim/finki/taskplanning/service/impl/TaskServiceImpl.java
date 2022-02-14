@@ -53,34 +53,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void delete(Long id) {
-            taskRepository.deleteById(id);
-    }
-
     @Transactional
-    @Override
-    public Optional<Task> save(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
-        if (title.isEmpty() || status.isEmpty() || startTime==null || endTime==null){
+    public Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+        if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
             throw new IllegalArgumentException();
         }
         User user = userRepository.findById(userId).get();
-        if(taskRepository.findById(id).isPresent()) {
-            Task task = taskRepository.getById(id);
-            task.setTitle(title);
-            task.setStatus(Status.valueOf(status));
-            task.setDescription(description);
-            task.setDependsOn(dependsOn);
-            task.setStartTime(startTime);
-            task.setEndTime(endTime);
+        Task task = taskRepository.getById(id);
+        task.setTitle(title);
+        task.setStatus(Status.valueOf(status));
+        task.setDescription(description);
+        task.setDependsOn(dependsOn);
+        task.setStartTime(startTime);
+        task.setEndTime(endTime);
 
+        task.setUser(user);
 
-            task.setUser(user);
-
-            return Optional.of(task);
-        }
-        else
-            return Optional.of(taskRepository.save(new Task(title, description, Status.valueOf(status),dependsOn.size()>0 ? dependsOn : new ArrayList<>(), user, startTime, endTime)));
+        return Optional.of(task);
     }
 
-
+    @Override
+    public void delete(Long id) {
+            taskRepository.deleteById(id);
+    }
 }

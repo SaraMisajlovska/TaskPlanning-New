@@ -19,6 +19,6 @@ public interface TaskService {
 
     void delete(Long id);
 
-    Optional<Task> save(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
+    Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
 
 }
