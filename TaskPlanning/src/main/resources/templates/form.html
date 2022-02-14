@@ -6,43 +6,57 @@
 <body>
 <!-- The form should submit to ProductsController.create or  ProductsController.update, depending on whether we are
 creating or editing a product -->
-<form th:action="(${product} != null ? '/products/' + ${product.getId()} : '/products')" th:method="post">
+<form th:action="(${task} != null ? '/tasks/update-task/' + ${task.getId()} : '/tasks/add-task')" th:method="POST">
     <div>
-        <label for="name">Name</label>
+        <label for="title">Title</label>
         <input type="text"
-               id="name"
-               name="name"
-               th:value="(${product} != null ? ${product.getName()} : '')"
+               id="title"
+               name="title"
+               th:value="(${task} != null ? ${task.getTitle()} : '')"
                required>
     </div>
     <div>
-        <label for="price">Price</label>
-        <input type="number"
-               id="price"
-               name="price"
-               th:value="(${product} != null ? ${product.getPrice()} : '')"
+        <label for="description">Description</label>
+        <input type="text"
+               id="description"
+               name="description"
+               th:value="(${task} != null ? ${task.getDescription()} : '')"
                required>
     </div>
     <div>
-        <label for="quantity">Quantity</label>
-        <input type="number"
-               id="quantity"
-               name="quantity"
-               th:value="(${product} != null ? ${product.getQuantity()} : '')"
-               required>
-    </div>
-    <div>
-        <label>Category</label><br/>
-        <select id="categories"
-                name="categories"
-                multiple="multiple"
-                size="5">
-            <!-- For each category you should have one <option> like below  -->
-            <option th:each="cat : ${categories}"
-                    th:value="${cat.getId()}"
-                    th:text="${cat.getName()}">
+        <label>Status</label><br/>
+        <select id="status"
+                name="status">
+
+            <option th:each="status : ${statusList}"
+                    th:value="${status.name()}"
+                    th:text="${status.name()}">
             </option>
         </select>
+    </div>
+    <div>
+        <label for="userId">Users</label><br/>
+        <select id="userId"
+                name="userId">
+            <option th:each="user : ${users}"
+                    th:value="${user.getId()}"
+                    th:text="${user.getName()} + ' ' + ${user.getSurname()}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label for="startTime">
+            Start of task
+        </label>
+        <input type="datetime-local" name="startTime" id="startTime">
+    </div>
+
+    <div>
+        <label for="endTime">
+            Estimated end of task
+        </label>
+        <input type="datetime-local" name="endTime" id="endTime">
     </div>
 
     <button id="submit" type="submit">Submit</button>

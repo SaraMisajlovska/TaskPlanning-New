@@ -45,7 +45,7 @@
                     <button type="submit" class="delete-item">Delete</button>
                 </form>
 
-                <a th:href="@{'/products/update-task/{id}' (id=${task.getId()})}" class="edit-item">Edit</a>
+                <a th:href="@{'/tasks/edit-task/{id}' (id=${task.getId()})}" class="edit-item">Edit</a>
             </td>
         </tr>
     </table>

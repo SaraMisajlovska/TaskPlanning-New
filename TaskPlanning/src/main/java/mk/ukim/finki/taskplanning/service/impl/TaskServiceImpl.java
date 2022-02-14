@@ -47,7 +47,7 @@ public class TaskServiceImpl implements TaskService {
         }
         User user = userRepository.findById(userId).get();
 
-        Task t = new Task(title, description, Status.valueOf(status),dependsOn.size()>0 ? dependsOn : new ArrayList<>(), user, startTime, endTime);
+        Task t = new Task(title, description, Status.valueOf(status),new ArrayList<>(), user, startTime, endTime);
         taskRepository.save(t);
         return t;
     }
@@ -58,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
         if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
             throw new IllegalArgumentException();
         }
-        User user = userRepository.findById(userId).get();
+      User user = userRepository.findById(userId).get();
         Task task = taskRepository.getById(id);
         task.setTitle(title);
         task.setStatus(Status.valueOf(status));

@@ -41,11 +41,19 @@ public class TaskController {
         return "form";
     }
 
+    @GetMapping("/edit-task/{id}")
+    public String editTask(@PathVariable Long id,Model model){
+        model.addAttribute("task",this.taskService.findById(id));
+        model.addAttribute("users", userService.findAll());
+        model.addAttribute("statusList", Arrays.asList(Status.values()));
+        return "form";
+    }
+
     @PostMapping("/add-task")
     public String createTask(@RequestParam String title,
                              @RequestParam String description,
                              @RequestParam String status,
-                             @RequestParam List<Task> dependsOn,
+                             @RequestParam(required = false) List<Task> dependsOn,
                              @RequestParam Long userId,
                              @RequestParam String startTime,
                              @RequestParam String endTime) {
