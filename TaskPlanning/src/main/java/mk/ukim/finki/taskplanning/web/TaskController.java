@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/tasks")
+@RequestMapping(value = {"/tasks", "/"})
 public class TaskController {
 
     private final TaskService taskService;
