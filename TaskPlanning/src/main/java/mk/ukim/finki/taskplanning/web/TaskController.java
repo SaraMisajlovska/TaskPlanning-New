@@ -34,8 +34,8 @@ public class TaskController {
 
     @GetMapping("/add-task")
     public String addTask(Model model) {
-        model.addAttribute("tasks", taskService.findAll());
-        model.addAttribute("users", userService.findAll());
+        model.addAttribute("tasks", this.taskService.findAll());
+        model.addAttribute("users", this.userService.findAll());
         model.addAttribute("statusList", Arrays.asList(Status.values()));
 
         return "form";
@@ -43,8 +43,8 @@ public class TaskController {
 
     @GetMapping("/edit-task/{id}")
     public String editTask(@PathVariable Long id,Model model){
-        model.addAttribute("task",this.taskService.findById(id));
-        model.addAttribute("users", userService.findAll());
+        model.addAttribute("task",this.taskService.findById(id).get());
+        model.addAttribute("users", this.userService.findAll());
         model.addAttribute("statusList", Arrays.asList(Status.values()));
         return "form";
     }
@@ -67,7 +67,7 @@ public class TaskController {
                              @RequestParam String title,
                              @RequestParam String description,
                              @RequestParam String status,
-                             @RequestParam List<Task> dependsOn,
+                             @RequestParam(required = false) List<Task> dependsOn,
                              @RequestParam Long userId,
                              @RequestParam String startTime,
                              @RequestParam String endTime) {
