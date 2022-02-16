@@ -19,6 +19,9 @@
 <div class="container">
 
     <div class="row">
+        <div th:if="${hasError}">
+            <div style="color:red" th:text="${error}"></div>
+        </div>
         <table class="table table-striped">
             <thead class="thead-dark">
             <tr>
@@ -44,8 +47,9 @@
                     </ul>
                 </td>
                 <td th:text="${task.getUser().getName()} + ' ' + ${task.getUser().getSurname()}"></td>
-                <td th:text="${task.getStartTime()}"></td>
-                <td th:text="${task.getEndTime()}"></td>
+                <td th:text="(${task.getStartTime().toLocalDate()} + ' ' + ${task.getStartTime().toLocalTime()})"></td>
+                <td th:text="(${task.getEndTime().toLocalDate()} + ' ' + ${task.getEndTime().toLocalTime()})"></td>
+
 
 
                 <td>

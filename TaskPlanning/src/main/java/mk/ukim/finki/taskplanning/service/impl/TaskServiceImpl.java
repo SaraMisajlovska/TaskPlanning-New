@@ -3,6 +3,7 @@ package mk.ukim.finki.taskplanning.service.impl;
 import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
 import mk.ukim.finki.taskplanning.model.User;
+import mk.ukim.finki.taskplanning.model.exceptions.TimeNotAllowedException;
 import mk.ukim.finki.taskplanning.repository.TaskRepository;
 import mk.ukim.finki.taskplanning.repository.UserRepository;
 import mk.ukim.finki.taskplanning.service.TaskService;
@@ -46,7 +47,9 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException();
         }
         User user = userRepository.findById(userId).get();
-
+        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+            throw new TimeNotAllowedException();
+        }
         Task t = new Task(title, description, Status.valueOf(status),new ArrayList<>(), user, startTime, endTime);
         taskRepository.save(t);
         return t;
@@ -57,6 +60,9 @@ public class TaskServiceImpl implements TaskService {
     public Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
         if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
             throw new IllegalArgumentException();
+        }
+        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+            throw new TimeNotAllowedException();
         }
       User user = userRepository.findById(userId).get();
         Task task = taskRepository.getById(id);

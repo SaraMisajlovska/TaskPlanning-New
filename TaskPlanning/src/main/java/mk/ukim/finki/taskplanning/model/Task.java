@@ -28,9 +28,9 @@ public class Task {
     @ManyToOne
     private User user;
 
-    @DateTimeFormat(pattern = "dd-MM-yyyy'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
-    @DateTimeFormat(pattern = "dd-MM-yyyy'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
 

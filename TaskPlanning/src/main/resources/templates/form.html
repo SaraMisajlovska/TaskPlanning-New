@@ -26,13 +26,14 @@
 <body>
 <div class="container">
 
-    <div class="row">
 
-        <form th:action="(${task} != null ? '/tasks/update-task/' + ${task.getId()} : '/tasks/add-task')"
+    <div class="row">
+        <form th:action="(${task} != null ? '/tasks/edit-task/' + ${task.getId()} : '/tasks/add-task')"
               th:method="POST">
             <div class="form-group">
                 <label for="title">Title</label>
                 <input class="form-control"
+                       placeholder="Enter title"
                        type="text"
                        id="title"
                        name="title"
@@ -44,6 +45,7 @@
                 <label for="description">Description</label>
                 <input class="form-control"
                        type="text"
+                       placeholder="Enter description"
                        id="description"
                        name="description"
                        th:value="(${task} != null ? ${task.getDescription()} : '')"
@@ -108,6 +110,9 @@
                        name="endTime"
                        id="endTime"
                        th:value="(${task}==null ? '' : ${task.getEndTime()})">
+            </div>
+            <div th:if="${hasError}" class="form-group">
+                <div style="color:red" th:text="${error}"></div>
             </div>
 
 
