@@ -2,60 +2,78 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Tasks</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="../static/style.css"/>
+    <style>
+
+        div.container {
+            margin: 10% 10% 10% 20%;
+        }
+        .logout {
+            margin-left: 77%;
+        }
+    </style>
 </head>
 <body>
+<div class="container">
 
-<div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Depends on</th>
+                <th>User</th>
+                <th>Start time</th>
+                <th>End time</th>
+                <th></th>
+            </tr>
+            </thead>
 
-    <div>
+            <tbody class="tbody">
+            <tr class="item" th:each="task : ${tasks}">
+                <td th:text="${task.getTitle()}"></td>
+                <td th:text="${task.getDescription()}"></td>
+                <td th:text="${task.getStatus().toString()}"></td>
+                <td>
+                    <ul th:each="dependents : ${task.dependsOn}">
+                        <li th:text="${dependents.getTitle()}"></li>
+                    </ul>
+                </td>
+                <td th:text="${task.getUser().getName()} + ' ' + ${task.getUser().getSurname()}"></td>
+                <td th:text="${task.getStartTime()}"></td>
+                <td th:text="${task.getEndTime()}"></td>
 
-        <a href="/tasks/add-task" class="add-item">
-            Add new task
-        </a>
+
+                <td>
+
+                    <form method="post" th:action="@{'/tasks/{id}/delete' (id=${task.getId()})}">
+                        <button type="submit" class=" btn btn-danger delete-item">Delete</button>
+                    </form>
+
+                    <a th:href="@{'/tasks/edit-task/{id}' (id=${task.getId()})}" class="btn btn-info edit-item">Edit</a>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+        <div>
+            <a href="/tasks/add-task" class="btn btn-primary add-item">
+                Add new task
+            </a>
+
+        </div>
+
+        <div class="logout">
+            <div id="nav">
+                <a class="btn btn-secondary logout" href="/logout">Logout</a>
+            </div>
+        </div>
 
     </div>
-    <table>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Depends on</th>
-            <th>User</th>
-            <th>Start time</th>
-            <th>End time</th>
-        </tr>
-
-        <tr class="item" th:each="task : ${tasks}">
-            <td th:text="${task.getTitle()}"></td>
-            <td th:text="${task.getDescription()}"></td>
-            <td th:text="${task.getStatus().toString()}"></td>
-            <td>
-                <ul th:each="dependents : ${task.dependsOn}">
-                    <li th:text="${dependents.getTitle()}"></li>
-                </ul>
-            </td>
-            <td th:text="${task.getUser().getName()} + ' ' + ${task.getUser().getSurname()}"></td>
-            <td th:text="${task.getStartTime()}"></td>
-            <td th:text="${task.getEndTime()}"></td>
-
-
-            <td>
-
-                <form method="post" th:action="@{'/tasks/{id}/delete' (id=${task.getId()})}">
-                    <button type="submit" class="delete-item">Delete</button>
-                </form>
-
-                <a th:href="@{'/tasks/edit-task/{id}' (id=${task.getId()})}" class="edit-item">Edit</a>
-            </td>
-        </tr>
-    </table>
-
-</div>
-<div>
-    <ul id="nav">
-        <li><a href="/login">Login</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul>
 </div>
 </body>
 </html>

@@ -2,91 +2,121 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="(${task} != null ? 'Edit task ' + ${task.getTitle()} : 'Add task')"></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
+    <style>
+        .container {
+            background-color: rgba(210, 219, 250, 0.99);
+            border-radius: 5px;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .row {
+            padding: 5%;
+            justify-content: center;
+        }
+
+
+        div.container {
+            margin: 10% 10% 10% 20%;
+
+        }
+    </style>
 </head>
 <body>
+<div class="container">
 
-<form th:action="(${task} != null ? '/tasks/update-task/' + ${task.getId()} : '/tasks/add-task')" th:method="POST">
-    <div>
-    <label for="title">Title</label>
-    <input type="text"
-           id="title"
-           name="title"
-           th:value="(${task} != null ? ${task.getTitle()} : '')"
-           required>
+    <div class="row">
+
+        <form th:action="(${task} != null ? '/tasks/update-task/' + ${task.getId()} : '/tasks/add-task')"
+              th:method="POST">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input class="form-control"
+                       type="text"
+                       id="title"
+                       name="title"
+                       th:value="(${task} != null ? ${task.getTitle()} : '')"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input class="form-control"
+                       type="text"
+                       id="description"
+                       name="description"
+                       th:value="(${task} != null ? ${task.getDescription()} : '')"
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Status</label><br/>
+                <select class="form-control"
+                        id="status"
+                        name="status">
+                    <option th:value="0" th:text="${'Please Select'}"></option>
+                    <option th:if="${task}!=null"
+                            th:selected="${task.getStatus()!=null && task.getStatus().name()==status.name()}"
+                            th:each="status : ${statusList}"
+                            th:value="${status.name()}"
+                            th:text="${status.name()}">
+                    </option>
+                    <option th:if="${task}==null"
+                            th:each="status : ${statusList}"
+                            th:value="${status.name()}"
+                            th:text="${status.name()}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="userId">Users</label><br/>
+                <select class="form-control"
+                        id="userId"
+                        name="userId">
+                    <option th:value="0" th:text="${'Please Select'}"></option>
+                    <option th:if="${task}!=null  "
+                            th:selected="${task.getUser()!= null && task.getUser().getId()==user.getId()}"
+                            th:each="user : ${users}"
+                            th:value="${user.getId()}"
+                            th:text="${user.getName()} + ' ' + ${user.getSurname()}">
+                    </option>
+                    <option th:if="${task}==null"
+                            th:each="user : ${users}"
+                            th:value="${user.getId()}"
+                            th:text="${user.getName()} + ' ' + ${user.getSurname()}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="startTime">
+                    Start of task
+                </label>
+                <input class="form-control"
+                       type="datetime-local"
+                       name="startTime" id="startTime"
+                       th:value="(${task}==null ? '' : ${task.getStartTime()})">
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">
+                    Estimated end of task
+                </label>
+                <input class="form-control"
+                       type="datetime-local"
+                       name="endTime"
+                       id="endTime"
+                       th:value="(${task}==null ? '' : ${task.getEndTime()})">
+            </div>
+
+
+                <button class="btn btn-success" id="submit" type="submit">Submit</button>
+                <a id="back" href="/tasks" type="button" class="btn btn-primary" style="margin-left: 25%">Back to tasks</a>
+        </form>
     </div>
-
-    <div>
-        <label for="description">Description</label>
-        <input type="text"
-               id="description"
-               name="description"
-               th:value="(${task} != null ? ${task.getDescription()} : '')"
-               required>
-    </div>
-    <div>
-        <label>Status</label><br/>
-        <select id="status"
-                name="status">
-            <option th:value="0" th:text="${'Please Select'}"></option>
-            <option th:if="${task}!=null"
-                    th:selected="${task.getStatus()!=null && task.getStatus().name()==status.name()}"
-                    th:each="status : ${statusList}"
-                    th:value="${status.name()}"
-                    th:text="${status.name()}">
-            </option>
-            <option th:if="${task}==null"
-                    th:each="status : ${statusList}"
-                    th:value="${status.name()}"
-                    th:text="${status.name()}">
-            </option>
-        </select>
-    </div>
-
-    <div>
-        <label for="userId">Users</label><br/>
-        <select id="userId"
-                name="userId">
-            <option th:value="0" th:text="${'Please Select'}"></option>
-            <option th:if="${task}!=null  "
-                    th:selected="${task.getUser()!= null && task.getUser().getId()==user.getId()}"
-                    th:each="user : ${users}"
-                    th:value="${user.getId()}"
-                    th:text="${user.getName()} + ' ' + ${user.getSurname()}">
-            </option>
-            <option th:if="${task}==null"
-                    th:each="user : ${users}"
-                    th:value="${user.getId()}"
-                    th:text="${user.getName()} + ' ' + ${user.getSurname()}">
-            </option>
-        </select>
-    </div>
-
-    <div>
-        <label for="startTime">
-            Start of task
-        </label>
-        <input type="datetime-local" name="startTime" id="startTime"
-               th:value="(${task}==null ? '' : ${task.getStartTime()})">
-    </div>
-
-    <div>
-        <label for="endTime">
-            Estimated end of task
-        </label>
-        <input type="datetime-local" name="endTime" id="endTime"
-               th:value="(${task}==null ? '' : ${task.getEndTime()})">
-    </div>
-
-    <button id="submit" type="submit">Submit</button>
-    <a id="back" href="/tasks" type="button" class="btn btn-primary">Back to products</a>
-</form>
-
-<div>
-    <ul id="nav">
-        <li><a href="/login">Login</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul>
 </div>
+
 
 </body>
 </html>
