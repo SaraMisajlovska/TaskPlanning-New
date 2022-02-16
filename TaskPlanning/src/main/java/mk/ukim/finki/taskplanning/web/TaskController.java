@@ -57,6 +57,7 @@ public class TaskController {
             model.addAttribute("error",error);
         }
         model.addAttribute("task",this.taskService.findById(id).get());
+        model.addAttribute("possibleDependants", this.taskService.getOtherTasks(id));
         model.addAttribute("users", this.userService.findAll());
         model.addAttribute("statusList", Arrays.asList(Status.values()));
         return "form";

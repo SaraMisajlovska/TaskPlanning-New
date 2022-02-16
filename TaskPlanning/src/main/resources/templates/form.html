@@ -72,7 +72,7 @@
             </div>
 
             <div class="form-group">
-                <label for="userId">Users</label><br/>
+                <label for="userId">Assignees</label><br/>
                 <select class="form-control"
                         id="userId"
                         name="userId">
@@ -87,6 +87,26 @@
                             th:each="user : ${users}"
                             th:value="${user.getId()}"
                             th:text="${user.getName()} + ' ' + ${user.getSurname()}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dependsOn">Depends on</label><br/>
+                <select class="form-control"
+                        id="dependsOn"
+                        name="dependsOn"
+                        multiple>
+                    <option th:if="${task}!=null"
+                            th:selected="${task.getDependsOn()!= null && task.getDependsOn().contains(t)}"
+                            th:each="t : ${possibleDependants}"
+                            th:value="${t.getId()}"
+                            th:text="${t.getTitle()}">
+                    </option>
+                    <option th:if="${task}==null"
+                            th:each="t : ${tasks}"
+                            th:value="${t.getId()}"
+                            th:text="${t.getTitle()}">
                     </option>
                 </select>
             </div>

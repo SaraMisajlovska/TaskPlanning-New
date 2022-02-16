@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -50,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new TimeNotAllowedException();
         }
-        Task t = new Task(title, description, Status.valueOf(status),new ArrayList<>(), user, startTime, endTime);
+        Task t = new Task(title, description, Status.valueOf(status),dependsOn, user, startTime, endTime);
         taskRepository.save(t);
         return t;
     }
@@ -76,6 +77,14 @@ public class TaskServiceImpl implements TaskService {
         task.setUser(user);
 
         return Optional.of(task);
+    }
+
+    @Override
+    public List<Task> getOtherTasks(Long id) {
+        return this.taskRepository.findAll()
+                .stream()
+                .filter(task -> !task.getId().equals(id))
+                .collect(Collectors.toList());
     }
 
     @Override
