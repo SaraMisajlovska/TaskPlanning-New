@@ -88,6 +88,23 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<Task> withoutStartTime() {
+        return  taskRepository.findAll()
+                .stream()
+                .filter(task -> task.getStartTime() == null)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Task> withoutAssignees() {
+        return taskRepository.findAll()
+                .stream()
+                .filter(task -> task.getUser() == null)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public void delete(Long id) {
             taskRepository.deleteById(id);
     }

@@ -22,4 +22,11 @@ public interface TaskService {
     Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
 
     List<Task> getOtherTasks(Long id);
+
+    List<Task> withoutStartTime();
+
+    List<Task> withoutAssignees();
+
+
+
 }
