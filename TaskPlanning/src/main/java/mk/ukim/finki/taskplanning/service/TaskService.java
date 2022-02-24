@@ -1,10 +1,10 @@
 package mk.ukim.finki.taskplanning.service;
 
 import mk.ukim.finki.taskplanning.model.Task;
-import mk.ukim.finki.taskplanning.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface TaskService {
@@ -15,7 +15,7 @@ public interface TaskService {
 
     Optional<Task> findByTitle(String title);
 
-    Task create( String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
+    Task create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
 
     void delete(Long id);
 
@@ -27,6 +27,10 @@ public interface TaskService {
 
     List<Task> withoutAssignees();
 
+    Map<Task, String> findAllByUserAndEstTimes(Long userId);
 
+    Long findEstTimeInHours(Task task);
+
+    String convertToReadableEstTime(Long hours);
 
 }

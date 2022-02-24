@@ -28,20 +28,21 @@ public class TaskController {
     }
 
     @GetMapping
-    public String getTasks(@RequestParam(required = false) String error,Model model) {
-        if(error != null && !error.isEmpty()){
-            model.addAttribute("hasError",true);
-            model.addAttribute("error",error);
+    public String getTasks(@RequestParam(required = false) String error, Model model) {
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("hasError", true);
+            model.addAttribute("error", error);
         }
         model.addAttribute("tasks", taskService.findAll());
+        model.addAttribute("users", this.userService.findAll());
         return "tasks";
     }
 
     @GetMapping("/add-task")
-    public String addTask(@RequestParam(required = false) String error,  Model model) {
-        if(error != null && !error.isEmpty()){
-            model.addAttribute("hasError",true);
-            model.addAttribute("error",error);
+    public String addTask(@RequestParam(required = false) String error, Model model) {
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("hasError", true);
+            model.addAttribute("error", error);
         }
         model.addAttribute("tasks", this.taskService.findAll());
         model.addAttribute("users", this.userService.findAll());
@@ -51,16 +52,30 @@ public class TaskController {
     }
 
     @GetMapping("/edit-task/{id}")
-    public String editTask(@PathVariable Long id,Model model,@RequestParam(required = false) String error){
-        if(error != null && !error.isEmpty()){
-            model.addAttribute("hasError",true);
-            model.addAttribute("error",error);
+    public String editTask(@PathVariable Long id, Model model, @RequestParam(required = false) String error) {
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("hasError", true);
+            model.addAttribute("error", error);
         }
-        model.addAttribute("task",this.taskService.findById(id).get());
+        model.addAttribute("task", this.taskService.findById(id).get());
         model.addAttribute("possibleDependants", this.taskService.getOtherTasks(id));
         model.addAttribute("users", this.userService.findAll());
         model.addAttribute("statusList", Arrays.asList(Status.values()));
         return "form";
+    }
+
+    @GetMapping("/userAndEstTimes/{userId}")
+    public String getTasksByUserAndEstTimes(@PathVariable Long userId,
+                                            Model model) {
+        model.addAttribute("map", this.taskService.findAllByUserAndEstTimes(userId));
+        return "filteredTasks";
+
+    }
+
+    @PostMapping("/userAndEstTimes")
+    public String postTasksByUserAndEstTimes(@RequestParam Long userId) {
+        return "redirect:/tasks/userAndEstTimes/" + userId;
+
     }
 
     @PostMapping("/add-task")
@@ -72,10 +87,10 @@ public class TaskController {
                              @RequestParam String startTime,
                              @RequestParam(required = false) String endTime) {
 
-        try{
+        try {
             taskService.create(title, description, status, dependsOn, userId, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime));
-        }catch (TimeNotAllowedException timeNotAllowedException){
-            return "redirect:/tasks/add-task?error="+timeNotAllowedException.getMessage();
+        } catch (TimeNotAllowedException timeNotAllowedException) {
+            return "redirect:/tasks/add-task?error=" + timeNotAllowedException.getMessage();
         }
         return "redirect:/tasks";
     }
@@ -88,13 +103,13 @@ public class TaskController {
                              @RequestParam(required = false) List<Task> dependsOn,
                              @RequestParam Long userId,
                              @RequestParam String startTime,
-                             @RequestParam(required = false)String endTime) {
+                             @RequestParam(required = false) String endTime) {
 
-       try{
-           taskService.update(id, title, description, status, dependsOn, userId, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime));
-       }catch (TimeNotAllowedException timeNotAllowedException){
-           return String.format("redirect:/tasks/edit-task/%d?error="+timeNotAllowedException.getMessage(),id);
-       }
+        try {
+            taskService.update(id, title, description, status, dependsOn, userId, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime));
+        } catch (TimeNotAllowedException timeNotAllowedException) {
+            return String.format("redirect:/tasks/edit-task/%d?error=" + timeNotAllowedException.getMessage(), id);
+        }
         return "redirect:/tasks";
     }
 

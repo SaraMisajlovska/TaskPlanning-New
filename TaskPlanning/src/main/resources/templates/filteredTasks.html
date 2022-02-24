@@ -10,6 +10,7 @@
         div.container {
             margin: 10% 10% 10% 20%;
         }
+
         .logout {
             margin-left: 77%;
         }
@@ -19,23 +20,7 @@
 <div class="container">
 
     <div class="row">
-       <form class="form-group" th:method="post" th:action="@{'/tasks/userAndEstTimes'}">
-           <select class="form-control"
-                   id="userId"
-                   name="userId">
-               <option
-                       th:each="user : ${users}"
-                       th:value="${user.getId()}"
-                       th:text="${user.getName()} + ' ' + ${user.getSurname()}">
-               </option>
-           </select>
-           <button type="submit">Find</button>
-       </form>
-    </div>
-    <div class="row">
-        <div th:if="${hasError}">
-            <div style="color:red" th:text="${error}"></div>
-        </div>
+
         <table class="table table-striped" id="tasksId">
             <thead class="thead-dark">
             <tr>
@@ -46,12 +31,13 @@
                 <th>User</th>
                 <th>Start time</th>
                 <th>End time</th>
+                <th>Estimated Time</th>
                 <th></th>
             </tr>
             </thead>
 
             <tbody class="tbody">
-            <tr class="item" th:each="task : ${tasks}">
+            <tr class="item" th:each="task : ${map.keySet()}">
                 <td th:text="${task.getTitle()}"></td>
                 <td th:text="${task.getDescription()}"></td>
                 <td th:text="${task.getStatus().toString()}"></td>
@@ -63,6 +49,11 @@
                 <td th:text="${task.getUser().getName()} + ' ' + ${task.getUser().getSurname()}"></td>
                 <td th:text="(${task.getStartTime().toLocalDate()} + ' ' + ${task.getStartTime().toLocalTime()})"></td>
                 <td th:text="(${task.getEndTime().toLocalDate()} + ' ' + ${task.getEndTime().toLocalTime()})"></td>
+                <td th:if="${map!= null && map.keySet().size()>0}"
+                    th:text="${map.get(task)}">
+                </td>
+
+
                 <td>
 
                     <form method="post" th:action="@{'/tasks/{id}/delete' (id=${task.getId()})}">
@@ -75,13 +66,6 @@
             </tbody>
 
         </table>
-        <div>
-            <a href="/tasks/add-task" class="btn btn-primary add-item">
-                Add new task
-            </a>
-
-        </div>
-
         <div class="logout">
             <div id="nav">
                 <a class="btn btn-secondary logout" href="/logout">Logout</a>

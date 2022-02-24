@@ -10,10 +10,10 @@ import mk.ukim.finki.taskplanning.service.TaskService;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +27,7 @@ public class TaskServiceImpl implements TaskService {
         this.userRepository = userRepository;
     }
 
-    public Optional<Task> findById(Long id){
+    public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);
     }
 
@@ -51,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new TimeNotAllowedException();
         }
-        Task t = new Task(title, description, Status.valueOf(status),dependsOn, user, startTime, endTime);
+        Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime);
         taskRepository.save(t);
         return t;
     }
@@ -65,7 +65,7 @@ public class TaskServiceImpl implements TaskService {
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new TimeNotAllowedException();
         }
-      User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).get();
         Task task = taskRepository.getById(id);
         task.setTitle(title);
         task.setStatus(Status.valueOf(status));
@@ -88,8 +88,41 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Map<Task, String> findAllByUserAndEstTimes(Long userId) {
+
+        Map<Long, Task> longTaskTreeMap = new TreeMap<>();
+        Map<Task, String> tasksWithEstTimeInHours = new LinkedHashMap<>();
+        User user = this.userRepository.findById(userId).get();
+
+        this.taskRepository.findAllByUser(user)
+                .forEach(task ->
+                        longTaskTreeMap.put(findEstTimeInHours(task), task)
+                );
+
+        longTaskTreeMap.forEach((k, v) -> {
+            tasksWithEstTimeInHours.put(v, convertToReadableEstTime(k));
+        });
+        return tasksWithEstTimeInHours;
+    }
+
+    @Override
+    public Long findEstTimeInHours(Task task) {
+        return Duration.between(task.getStartTime(), task.getEndTime()).toHours();
+    }
+
+    @Override
+    public String convertToReadableEstTime(Long hours) {
+        if (hours < 24) {
+            return hours <= 1 ? String.format("%d hour", hours) : String.format("%d hours", hours);
+        } else {
+            long days = hours / 24;
+            return days <= 1 ? String.format("%d day", days) : String.format("%d days", days);
+        }
+    }
+
+    @Override
     public List<Task> withoutStartTime() {
-        return  taskRepository.findAll()
+        return taskRepository.findAll()
                 .stream()
                 .filter(task -> task.getStartTime() == null)
                 .collect(Collectors.toList());
@@ -106,6 +139,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void delete(Long id) {
-            taskRepository.deleteById(id);
+        taskRepository.deleteById(id);
     }
 }
