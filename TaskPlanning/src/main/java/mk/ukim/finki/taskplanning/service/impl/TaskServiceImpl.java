@@ -121,6 +121,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<Task> tasksWithoutDependencies() {
+        return this.taskRepository.findAll().stream().filter(task->task.getDependsOn().size()==0).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Task> completedDependentTasks() {
+        return this.taskRepository.findAll().stream().
+                filter(task -> task.getStatus().toString().equals(Status.finished.toString())
+                && !task.getDependsOn().isEmpty()).
+                collect(Collectors.toList());
+    }
+
+    @Override
     public List<Task> withoutStartTime() {
         return taskRepository.findAll()
                 .stream()

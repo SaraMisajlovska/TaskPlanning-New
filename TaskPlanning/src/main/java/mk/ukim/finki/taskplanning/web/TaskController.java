@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -28,12 +29,28 @@ public class TaskController {
     }
 
     @GetMapping
-    public String getTasks(@RequestParam(required = false) String error, Model model) {
+    public String getTasks(@RequestParam(required = false) String error,@RequestParam(required = false) String tasksStatus, Model model, HttpServletRequest request) {
         if (error != null && !error.isEmpty()) {
             model.addAttribute("hasError", true);
             model.addAttribute("error", error);
         }
-        model.addAttribute("tasks", taskService.findAll());
+//        String tasksStatus = request.getParameter("taskStatus");
+        List<Task> tasks;
+        if(tasksStatus!=null){
+            if(tasksStatus.equals("finished")) {
+                tasks = this.taskService.completedDependentTasks();
+            }
+            else if(tasksStatus.equals("Independent")){
+                tasks=this.taskService.tasksWithoutDependencies();
+            } else{
+                tasks=this.taskService.findAll();
+            }
+
+        }else{
+            tasks=this.taskService.findAll();
+        }
+
+        model.addAttribute("tasks", tasks);
         model.addAttribute("users", this.userService.findAll());
         return "tasks";
     }

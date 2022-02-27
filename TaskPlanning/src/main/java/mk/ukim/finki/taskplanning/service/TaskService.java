@@ -33,4 +33,8 @@ public interface TaskService {
 
     String convertToReadableEstTime(Long hours);
 
+    List<Task> tasksWithoutDependencies();
+
+    List<Task> completedDependentTasks();
+
 }
