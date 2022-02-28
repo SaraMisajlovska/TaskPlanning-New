@@ -73,9 +73,9 @@
                         <li th:text="${dependents.getTitle()}"></li>
                     </ul>
                 </td>
-                <td th:text="${task.getUser().getName()} + ' ' + ${task.getUser().getSurname()}"></td>
-                <td th:text="(${task.getStartTime().toLocalDate()} + ' ' + ${task.getStartTime().toLocalTime()})"></td>
-                <td th:text="(${task.getEndTime().toLocalDate()} + ' ' + ${task.getEndTime().toLocalTime()})"></td>
+                <td th:text="${task.getUserName()}"></td>
+                <td th:text="${task.getStartTime()==null} ? '/' : (${task.getStartTime().toLocalDate()} + ' ' + ${task.getStartTime().toLocalTime()})"></td>
+                <td th:text="${task.getEndTime()==null} ? '/' : (${task.getEndTime().toLocalDate()} + ' ' + ${task.getEndTime().toLocalTime()})"></td>
                 <td>
 
                     <form method="post" th:action="@{'/tasks/{id}/delete' (id=${task.getId()})}">

@@ -2,6 +2,7 @@ package mk.ukim.finki.taskplanning.model;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -27,13 +28,23 @@ public class Task {
     private List<Task> dependsOn;
 
     @ManyToOne
+    @Nullable
     private User user;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Nullable
     private LocalDateTime startTime;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Nullable
     private LocalDateTime endTime;
 
+    public String getUserName(){
+        if(this.user==null){
+            return "No users for this task";
+        }
+        return this.user.getName() + " " + this.user.getSurname();
+    }
 
     public Task() {
     }

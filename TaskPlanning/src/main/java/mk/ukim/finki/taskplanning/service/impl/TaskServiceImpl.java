@@ -47,9 +47,12 @@ public class TaskServiceImpl implements TaskService {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException();
         }
-        User user = userRepository.findById(userId).get();
-        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
-            throw new TimeNotAllowedException();
+        User user = userId == 0 ? null : userRepository.findById(userId).get();
+
+        if(startTime !=null && endTime!=null){
+            if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+                throw new TimeNotAllowedException();
+            }
         }
         Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime);
         taskRepository.save(t);
@@ -62,10 +65,13 @@ public class TaskServiceImpl implements TaskService {
         if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
             throw new IllegalArgumentException();
         }
-        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
-            throw new TimeNotAllowedException();
+
+        if(startTime !=null && endTime!=null){
+            if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+                throw new TimeNotAllowedException();
+            }
         }
-        User user = userRepository.findById(userId).get();
+        User user = userId == 0 ? null : userRepository.findById(userId).get();
         Task task = taskRepository.getById(id);
         task.setTitle(title);
         task.setStatus(Status.valueOf(status));

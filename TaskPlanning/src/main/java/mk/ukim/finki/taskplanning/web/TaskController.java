@@ -100,12 +100,12 @@ public class TaskController {
                              @RequestParam String description,
                              @RequestParam String status,
                              @RequestParam(required = false) List<Task> dependsOn,
-                             @RequestParam Long userId,
-                             @RequestParam String startTime,
+                             @RequestParam(required = false) Long userId,
+                             @RequestParam(required = false) String startTime,
                              @RequestParam(required = false) String endTime) {
 
         try {
-            taskService.create(title, description, status, dependsOn, userId, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime));
+            taskService.create(title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime));
         } catch (TimeNotAllowedException timeNotAllowedException) {
             return "redirect:/tasks/add-task?error=" + timeNotAllowedException.getMessage();
         }
@@ -118,12 +118,12 @@ public class TaskController {
                              @RequestParam String description,
                              @RequestParam String status,
                              @RequestParam(required = false) List<Task> dependsOn,
-                             @RequestParam Long userId,
-                             @RequestParam String startTime,
+                             @RequestParam(required = false)Long userId,
+                             @RequestParam(required = false) String startTime,
                              @RequestParam(required = false) String endTime) {
 
         try {
-            taskService.update(id, title, description, status, dependsOn, userId, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime));
+            taskService.update(id, title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime));
         } catch (TimeNotAllowedException timeNotAllowedException) {
             return String.format("redirect:/tasks/edit-task/%d?error=" + timeNotAllowedException.getMessage(), id);
         }
