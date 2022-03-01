@@ -29,12 +29,17 @@ public class TaskController {
     }
 
     @GetMapping
-    public String getTasks(@RequestParam(required = false) String error,@RequestParam(required = false) String tasksStatus, Model model, HttpServletRequest request) {
+    public String getTasks(@RequestParam(required = false) String error,
+                           @RequestParam(required = false) String tasksStatus,
+                           @RequestParam(required = false) String taskStartTime,
+                           @RequestParam(required = false) String taskAssignee,
+                           Model model) {
         if (error != null && !error.isEmpty()) {
             model.addAttribute("hasError", true);
             model.addAttribute("error", error);
         }
 //        String tasksStatus = request.getParameter("taskStatus");
+
         List<Task> tasks;
         if(tasksStatus!=null){
             if(tasksStatus.equals("finished")) {
@@ -50,8 +55,33 @@ public class TaskController {
             tasks=this.taskService.findAll();
         }
 
+/*
+        if(taskStartTime!=null) {
+            if (taskStartTime.equals("withoutStartTime"))
+                tasks = taskService.withoutStartTime();
+            else
+                tasks = taskService.findAll();
+        }
+        else
+            tasks = taskService.findAll();*/
+
+/*
+        if(taskAssignee!=null) {
+            if (taskAssignee.equals("withoutAssignee"))
+                tasks = taskService.withoutAssignees();
+            else
+                tasks = taskService.findAll();
+        }
+        else
+            tasks = taskService.findAll();
+*/
+
+
+
         model.addAttribute("tasks", tasks);
         model.addAttribute("users", this.userService.findAll());
+
+
         return "tasks";
     }
 
@@ -94,6 +124,7 @@ public class TaskController {
         return "redirect:/tasks/userAndEstTimes/" + userId;
 
     }
+
 
     @PostMapping("/add-task")
     public String createTask(@RequestParam String title,
