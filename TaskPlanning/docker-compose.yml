@@ -4,6 +4,7 @@ services:
   task-planning-db:
     #   Use the Docker Image postgres. This will pull the newest release.
     image: postgres
+    restart: always
     #   Give the container the name my_postgres. You can changes to something else.
     container_name: "task-planning"
     #   Setup the username, password, and database name. You can changes these values.
@@ -18,5 +19,18 @@ services:
     #   I used the name postgres-data but you can changed it to something else.
     volumes:
       - postgres-data:/var/lib/postgresql/data
+  project_backend:
+    depends_on:
+    - task-planning-db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: task-planning
+    ports:
+    - "8080:8080"
+    environment:
+    - "SPRING_PROFILES_ACTIVE=prod"
+    - "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/task-planning"
+    - "ELASTICSEARCH_URL=http://task-planning:9200"
 volumes:
-  postgres-data:
+  db-data:
