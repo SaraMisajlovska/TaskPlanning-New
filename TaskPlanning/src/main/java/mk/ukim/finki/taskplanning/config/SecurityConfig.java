@@ -20,10 +20,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // TODO: If you are implementing the security requirements, remove this following line
-//        web.ignoring().antMatchers("/**");
+        web.ignoring().antMatchers("/**");
     }
 
-    @Override
+   /* @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies("JSESSIONID")
                 .logoutSuccessUrl("/");
 
-    }
+    }*/
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
