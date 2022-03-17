@@ -15,7 +15,7 @@ public interface TaskService {
 
     Optional<Task> findByTitle(String title);
 
-    Task create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
+    Optional<Task> create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
 
     void delete(Long id);
 

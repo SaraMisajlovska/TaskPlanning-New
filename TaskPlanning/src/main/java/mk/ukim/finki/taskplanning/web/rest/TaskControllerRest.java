@@ -1,13 +1,13 @@
 package mk.ukim.finki.taskplanning.web.rest;
 
+import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
+import mk.ukim.finki.taskplanning.model.dto.TaskDTO;
 import mk.ukim.finki.taskplanning.service.TaskService;
 import mk.ukim.finki.taskplanning.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -37,33 +37,28 @@ public class TaskControllerRest {
 
 
     @PostMapping("/add-task")
-    public ResponseEntity<Task> save(@RequestParam String title,
-                                     @RequestParam String description,
-                                     @RequestParam String status,
-                                     @RequestParam(required = false) List<Task> dependsOn,
-                                     @RequestParam(required = false) Long userId,
-                                     @RequestParam(required = false) String startTime,
-                                     @RequestParam(required = false) String endTime) {
-
-        //wtf? zaso nejke map tuka vrska neam
-    /*return this.taskService.create(title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime))
-            .map(manufacturer -> ResponseEntity.ok().body(manufacturer))
-            .orElseGet(() -> ResponseEntity.badRequest().build());*/
-        return null;
+    public ResponseEntity<Task>save(@RequestBody TaskDTO taskDTO) {
+        return this.taskService.create(taskDTO.getTitle(), taskDTO.getDescription(),
+                taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),taskDTO.getDependsOn(),taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                taskDTO.getStartTime(),taskDTO.getEndTime()).map(
+                        task -> ResponseEntity.ok().body(task)
+             )
+                .orElseGet(()->ResponseEntity.badRequest().build());
 }
 
     @PutMapping("/edit-task/{id}")
     public ResponseEntity<Task> save(@PathVariable Long id,
-                                     @RequestParam String title,
-                                     @RequestParam String description,
-                                     @RequestParam String status,
-                                     @RequestParam(required = false) List<Task> dependsOn,
-                                     @RequestParam(required = false)Long userId,
-                                     @RequestParam(required = false) String startTime,
-                                     @RequestParam(required = false) String endTime) {
-        return this.taskService.update(id, title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime))
-                .map(task -> ResponseEntity.ok().body(task))
-                .orElseGet(() -> ResponseEntity.badRequest().build());
+                     @RequestBody TaskDTO taskDTO) {
+
+        return this.taskService.update(id,taskDTO.getTitle(), taskDTO.getDescription(),
+                        taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
+                        taskDTO.getDependsOn(),taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                        taskDTO.getStartTime(),taskDTO.getEndTime()).map(
+                        task -> ResponseEntity.ok().body(task)
+                )
+                .orElseGet(()->ResponseEntity.badRequest().build());
+
+
     }
 
     @DeleteMapping("/{id}/delete")

@@ -1,5 +1,6 @@
 package mk.ukim.finki.taskplanning.service.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
 import mk.ukim.finki.taskplanning.model.User;
@@ -43,11 +44,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public Task create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+    public Optional<Task> create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException();
         }
-        User user = userId == 0 ? null : userRepository.findById(userId).get();
+        User user = userId == null ? null : userRepository.findById(userId).get();
 
         if(startTime !=null && endTime!=null){
             if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
@@ -56,29 +57,30 @@ public class TaskServiceImpl implements TaskService {
         }
         Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime);
         taskRepository.save(t);
-        return t;
+        return Optional.of(t);
     }
 
     @Override
     @Transactional
+    @JsonIgnoreProperties
     public Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
-        if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
-            throw new IllegalArgumentException();
-        }
+//        if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
+//            throw new IllegalArgumentException();
+//        }
 
         if(startTime !=null && endTime!=null){
             if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
                 throw new TimeNotAllowedException();
             }
         }
-        User user = userId == 0 ? null : userRepository.findById(userId).get();
+        User user = userId == null ? null : userRepository.findById(userId).get();
         Task task = taskRepository.getById(id);
-        task.setTitle(title);
-        task.setStatus(Status.valueOf(status));
-        task.setDescription(description);
-        task.setDependsOn(dependsOn);
-        task.setStartTime(startTime);
-        task.setEndTime(endTime);
+        task.setTitle(title == null ? task.getTitle() : title);
+        task.setStatus(status == null ? task.getStatus() : Status.valueOf(status) );
+        task.setDescription(description == null ? task.getDescription() : description);
+        task.setDependsOn(dependsOn == null ? task.getDependsOn() : dependsOn);
+        task.setStartTime(startTime == null ? task.getStartTime() : startTime);
+        task.setEndTime(endTime == null ? task.getEndTime() : endTime);
 
         task.setUser(user);
 
