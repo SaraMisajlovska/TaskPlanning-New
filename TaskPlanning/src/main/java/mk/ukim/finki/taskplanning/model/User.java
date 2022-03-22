@@ -2,7 +2,6 @@ package mk.ukim.finki.taskplanning.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;

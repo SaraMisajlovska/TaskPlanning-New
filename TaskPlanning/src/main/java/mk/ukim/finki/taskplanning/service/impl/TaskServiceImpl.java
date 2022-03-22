@@ -5,6 +5,7 @@ import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
 import mk.ukim.finki.taskplanning.model.User;
 import mk.ukim.finki.taskplanning.model.exceptions.TimeNotAllowedException;
+import mk.ukim.finki.taskplanning.model.exceptions.UserDoesNotExistException;
 import mk.ukim.finki.taskplanning.repository.TaskRepository;
 import mk.ukim.finki.taskplanning.repository.UserRepository;
 import mk.ukim.finki.taskplanning.service.TaskService;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,13 +44,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public Optional<Task> create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
+    public Optional<Task> create(String title,
+                                 String description,
+                                 String status,
+                                 List<Task> dependsOn,
+                                 Long userId,
+                                 LocalDateTime startTime,
+                                 LocalDateTime endTime) {
+
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException();
         }
-        User user = userId == null ? null : userRepository.findById(userId).get();
+        User user = (userId == null )? null : userRepository.findById(userId)
+                                              .orElseThrow(() -> new UserDoesNotExistException(userId));
 
-        if(startTime !=null && endTime!=null){
+        if (startTime != null && endTime != null) {
             if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
                 throw new TimeNotAllowedException();
             }
@@ -63,20 +71,26 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @JsonIgnoreProperties
-    public Optional<Task> update(Long id, String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime) {
-//        if (title.isEmpty() || status.isEmpty() || startTime == null || endTime == null) {
-//            throw new IllegalArgumentException();
-//        }
+    public Optional<Task> update(Long id,
+                                 String title,
+                                 String description,
+                                 String status,
+                                 List<Task> dependsOn,
+                                 Long userId,
+                                 LocalDateTime startTime,
+                                 LocalDateTime endTime) {
 
-        if(startTime !=null && endTime!=null){
+        if (startTime != null && endTime != null) {
             if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
                 throw new TimeNotAllowedException();
             }
         }
-        User user = userId == null ? null : userRepository.findById(userId).get();
+        User user = (userId == null) ? null : userRepository.findById(userId)
+                                                .orElseThrow(() -> new UserDoesNotExistException(userId));
         Task task = taskRepository.getById(id);
+
         task.setTitle(title == null ? task.getTitle() : title);
-        task.setStatus(status == null ? task.getStatus() : Status.valueOf(status) );
+        task.setStatus(status == null ? task.getStatus() : Status.valueOf(status));
         task.setDescription(description == null ? task.getDescription() : description);
         task.setDependsOn(dependsOn == null ? task.getDependsOn() : dependsOn);
         task.setStartTime(startTime == null ? task.getStartTime() : startTime);
@@ -97,25 +111,26 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Map<Task, String> findAllByUserAndEstTimes(Long userId) {
-
         Map<Long, Task> longTaskTreeMap = new TreeMap<>();
         Map<Task, String> tasksWithEstTimeInHours = new LinkedHashMap<>();
-        User user = this.userRepository.findById(userId).get();
+
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new UserDoesNotExistException(userId));
 
         this.taskRepository.findAllByUser(user)
                 .forEach(task ->
                         longTaskTreeMap.put(findEstTimeInHours(task), task)
                 );
 
-        longTaskTreeMap.forEach((k, v) -> {
-            tasksWithEstTimeInHours.put(v, convertToReadableEstTime(k));
-        });
+        longTaskTreeMap.forEach((k, v) -> tasksWithEstTimeInHours.put(v, convertToReadableEstTime(k)));
         return tasksWithEstTimeInHours;
     }
 
     @Override
     public Long findEstTimeInHours(Task task) {
-        return Duration.between(task.getStartTime(), task.getEndTime()).toHours();
+        if (task.getStartTime() != null)
+            return Duration.between(task.getStartTime(), task.getEndTime()).toHours();
+        return Duration.between(LocalDateTime.now(), task.getEndTime()).toHours();
     }
 
     @Override
@@ -130,14 +145,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<Task> tasksWithoutDependencies() {
-        return this.taskRepository.findAll().stream().filter(task->task.getDependsOn().size()==0).collect(Collectors.toList());
+        return this.taskRepository.findAll().stream().filter(task -> task.getDependsOn().size() == 0).collect(Collectors.toList());
     }
 
     @Override
     public List<Task> completedDependentTasks() {
         return this.taskRepository.findAll().stream().
                 filter(task -> task.getStatus().toString().equals(Status.finished.toString())
-                && !task.getDependsOn().isEmpty()).
+                        && !task.getDependsOn().isEmpty()).
                 collect(Collectors.toList());
     }
 
