@@ -12,15 +12,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = {"/api/tasks", "/api"})
-public class TaskControllerRest {
+public class TaskRestController {
 
     private final TaskService taskService;
-    private final UserService userService;
 
-
-    public TaskControllerRest(TaskService taskService, UserService userService) {
+    public TaskRestController(TaskService taskService) {
         this.taskService = taskService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -38,11 +35,15 @@ public class TaskControllerRest {
 
     @PostMapping("/add-task")
     public ResponseEntity<Task>save(@RequestBody TaskDTO taskDTO) {
-        return this.taskService.create(taskDTO.getTitle(), taskDTO.getDescription(),
-                taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),taskDTO.getDependsOn(),taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
-                taskDTO.getStartTime(),taskDTO.getEndTime()).map(
-                        task -> ResponseEntity.ok().body(task)
-             )
+        return this.taskService.create(taskDTO.getTitle(),
+                        taskDTO.getDescription(),
+                        taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
+                        taskDTO.getDependsOn(),
+                        taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                        taskDTO.getStartTime(),
+                        taskDTO.getEndTime())
+                .map(
+                        task -> ResponseEntity.ok().body(task))
                 .orElseGet(()->ResponseEntity.badRequest().build());
 }
 
@@ -62,7 +63,7 @@ public class TaskControllerRest {
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity deleteById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
         this.taskService.delete(id);
         if(this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();

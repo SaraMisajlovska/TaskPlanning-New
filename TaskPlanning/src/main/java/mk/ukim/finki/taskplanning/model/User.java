@@ -1,9 +1,12 @@
 package mk.ukim.finki.taskplanning.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
+
 
 @Data
 @Entity
@@ -19,6 +22,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Task> tasks;
 
     public User(){
@@ -32,4 +36,6 @@ public class User {
         this.password = password;
         this.tasks = tasks;
     }
+
+
 }

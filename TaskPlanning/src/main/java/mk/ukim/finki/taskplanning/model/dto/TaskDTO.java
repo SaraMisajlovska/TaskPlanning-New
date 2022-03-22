@@ -1,6 +1,7 @@
 package mk.ukim.finki.taskplanning.model.dto;
 
 import lombok.Data;
+import lombok.ToString;
 import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
 import mk.ukim.finki.taskplanning.model.User;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Data
 public class TaskDTO {
-   private Long id;
+    private Long id;
     private String title;
     private String description;
 
@@ -24,6 +25,7 @@ public class TaskDTO {
     private User user;
 
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 
     public TaskDTO() {
@@ -49,4 +51,5 @@ public class TaskDTO {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
 }
