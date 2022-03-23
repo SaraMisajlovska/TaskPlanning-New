@@ -64,6 +64,13 @@ public class TaskServiceImpl implements TaskService {
             }
         }
         Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime);
+        if(startTime!=null && endTime == null){
+            t.setDuration(1L);
+        }
+        if(startTime!=null && endTime!=null){
+            Long duration  = this.findEstTimeInHours(t);
+            t.setDuration(duration);
+        }
         taskRepository.save(t);
         return Optional.of(t);
     }
@@ -98,6 +105,14 @@ public class TaskServiceImpl implements TaskService {
 
         task.setUser(user);
 
+        if(startTime!=null && endTime == null){
+            task.setDuration(1L);
+        }
+        if(startTime!=null && endTime!=null){
+            Long duration  = this.findEstTimeInHours(task);
+            task.setDuration(duration);
+        }
+
         return Optional.of(task);
     }
 
@@ -129,8 +144,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Long findEstTimeInHours(Task task) {
         if (task.getStartTime() != null)
-            return Duration.between(task.getStartTime(), task.getEndTime()).toHours();
-        return Duration.between(LocalDateTime.now(), task.getEndTime()).toHours();
+            return Duration.between(task.getStartTime(), task.getEndTime()).toDays();
+        return Duration.between(LocalDateTime.now(), task.getEndTime()).toDays();
     }
 
     @Override

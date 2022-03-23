@@ -18,6 +18,8 @@ public class Task {
     private String title;
     private String description;
 
+    private Long duration;
+
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
@@ -35,6 +37,7 @@ public class Task {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Nullable
     private LocalDateTime endTime;
+
 
     public String getUserName(){
         if(this.user==null){
