@@ -4,8 +4,6 @@ import Toolbar from "./components/Toolbar";
 import MessageArea from "./components/MessageArea";
 import "./App.css";
 import axios from "axios";
-import { useState } from "react/cjs/react.production.min";
-import { useEffect } from "react/cjs/react.production.min";
 import { gantt } from "dhtmlx-gantt";
 
 

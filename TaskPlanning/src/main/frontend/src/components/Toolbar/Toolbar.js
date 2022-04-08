@@ -19,11 +19,13 @@ export default class Toolbar extends Component {
       );
     });
 
+    //add other filters
     return (
       <div className="tool-bar">
         <b>Zoom: </b>
           { zoomRadios }
-      </div>
+          {/* add filters const/ component*/}
+  </div>
     );
   }
 }
