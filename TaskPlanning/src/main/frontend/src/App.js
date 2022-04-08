@@ -1,78 +1,79 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import Gantt from './components/Gantt';
 import Toolbar from './components/Toolbar';
 import MessageArea from './components/MessageArea';
 import './App.css';
 
 const data = {
-  data: [
-    { id: 1, text: 'Task #1', start_date: '2020-02-12', duration: 3, progress: 0.6 },
-    { id: 2, text: 'Task #2', start_date: '2020-02-16', duration: 3, progress: 0.4 },
-    {id: 3, text :" test 3", start_date: '2022-03-12', duration: 3 , progress: 0.3},
-    {id: 4, text :" test 3", start_date: '2022-03-12', duration: 3 , progress: 0.3}
-  ],
-  links: [
-    { id: 1, source: 1, target: 2, type: '0' }
-  ]
+    data: [
+        {id: 1, text: 'Task #1', start_date: '2020-02-12', duration: 3, progress: 0.6},
+        {id: 2, text: 'Task #2', start_date: '2020-02-16', duration: 3, progress: 0.4},
+        {id: 3, text: " test 3", start_date: '2022-03-12', duration: 3, progress: 0.3},
+        {id: 4, text: " test 3", start_date: '2022-03-12', duration: 3, progress: 0.3}
+    ],
+    links: [
+        {id: 1, source: 1, target: 2, type: '0'}
+    ]
 };
+
 class App extends Component {
-  state = {
-    currentZoom: 'Days',
-    messages: []
-  };
+    state = {
+        currentZoom: 'Days',
+        messages: []
+    };
 
-  addMessage(message) {
-    const maxLogLength = 5;
-    const newMessage = { message };
-    const messages = [
-      newMessage,
-      ...this.state.messages
-    ];
+    addMessage(message) {
+        const maxLogLength = 5;
+        const newMessage = {message};
+        const messages = [
+            newMessage,
+            ...this.state.messages
+        ];
 
-    if (messages.length > maxLogLength) {
-      messages.length = maxLogLength;
+        if (messages.length > maxLogLength) {
+            messages.length = maxLogLength;
+        }
+        this.setState({messages});
     }
-    this.setState({ messages });
-  }
 
-  logDataUpdate = (type, action, item, id) => {
-    let text = item && item.text ? ` (${item.text})` : '';
-    let message = `${type} ${action}: ${id} ${text}`;
-    if (type === 'link' && action !== 'delete') {
-      message += ` ( source: ${item.source}, target: ${item.target} )`;
+    logDataUpdate = (type, action, item, id) => {
+        let text = item && item.text ? ` (${item.text})` : '';
+        let message = `${type} ${action}: ${id} ${text}`;
+        if (type === 'link' && action !== 'delete') {
+            message += ` ( source: ${item.source}, target: ${item.target} )`;
+        }
+        this.addMessage(message);
     }
-    this.addMessage(message);
-  }
 
-  handleZoomChange = (zoom) => {
-    this.setState({
-      currentZoom: zoom
-    });
-  }
+    handleZoomChange = (zoom) => {
+        this.setState({
+            currentZoom: zoom
+        });
+    }
 
-  render() {
-    const { currentZoom, messages } = this.state;
-    return (
-      <div style={{height:'100%'}}>
-        <div className="zoom-bar">
-          <Toolbar
-            zoom={currentZoom}
-            onZoomChange={this.handleZoomChange}
-          />
-        </div>
-        <div className="gantt-container">
-          <Gantt
-            tasks={data}
-            zoom={currentZoom}
-            onDataUpdated={this.logDataUpdate}
-          />
-        </div>
-        {/* <MessageArea
+    render() {
+        const {currentZoom, messages} = this.state;
+        return (
+            <div style={{height: '100%'}}>
+                <div className="zoom-bar">
+                    <Toolbar
+                        zoom={currentZoom}
+                        onZoomChange={this.handleZoomChange}
+                    />
+                </div>
+                <div className="gantt-container">
+                    <Gantt
+                        tasks={data}
+                        zoom={currentZoom}
+                        onDataUpdated={this.logDataUpdate}
+                    />
+                </div>
+                {/* <MessageArea
           messages={messages}
         /> */}
-      </div>
-    );
-  }
+            </div>
+        );
+    }
 }
 
 export default App;
