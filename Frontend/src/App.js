@@ -7,6 +7,7 @@ import axios from "axios";
 import { useState } from "react/cjs/react.production.min";
 import { useEffect } from "react/cjs/react.production.min";
 import { gantt } from "dhtmlx-gantt";
+import GanttChartRepo from "./components/Repository/GanttChartRepo";
 
 
 class App extends Component {
@@ -23,6 +24,7 @@ class App extends Component {
 
 
   componentDidMount(){
+    this.fetchTasks();
     this.loadUsers();
 
     gantt.config.columns = [
@@ -34,16 +36,27 @@ class App extends Component {
         return obj.user_id
       } }
     ];
+  }  
 
-    axios({
-      method: "GET",
-      url: "http://localhost:9091/api/tasks",
-      headers: {
-        "Access-Control-AllowOrigin": "*",
-      },
-    }).then((res) => {
-      var tasksArray = res.data;
+  componentDidUpdate(){
+    gantt.config.lightbox.sections = [     
+      { name: "title", height: 70, map_to: "text", type: "textarea", focus: true },
+      { name: "description", height: 70, map_to: "text", type: "textarea" },
+      { name: "users", height: 22, map_to: "user_id", type: "select", options: this.state.users },
+      { name: "time", height: 72, map_to: "auto", type: "duration" },
+      { name: "start_end_date", height: 72, map_to: "auto", type: "time" }
+    ]
 
+    gantt.locale.labels.section_users="Users";
+    gantt.locale.labels.section_title="Title";
+    gantt.locale.labels.section_start_end_date="Start and end date";
+  }
+
+
+  fetchTasks=()=>{
+    GanttChartRepo.fetchTasks()
+    .then((data)=>{
+      var tasksArray = data.data;   
 
       const updatedTasks = tasksArray.map((task) => ({
         id: task.id.toString(),
@@ -61,43 +74,17 @@ class App extends Component {
       gantt.parse({
         data: updatedTasks,
       });
-
-    });  
-
-
-  }  
-
-  componentDidUpdate(){
-    gantt.config.lightbox.sections = [     
-      { name: "title", height: 70, map_to: "text", type: "textarea", focus: true },
-      { name: "description", height: 70, map_to: "text", type: "textarea" },
-      { name: "users", height: 22, map_to: "user_id", type: "select", options: this.state.users },
-      { name: "time", height: 72, map_to: "auto", type: "duration" },
-      { name: "start_end_date", height: 72, map_to: "auto", type: "time" }
-    ]
-
-    gantt.locale.labels.section_users="Users";
-    gantt.locale.labels.section_title="Title";
-    gantt.locale.labels.section_start_end_date="Start and end date";
+    })
   }
 
   loadUsers=()=>{
-
-    axios({
-      method: "GET",
-      url: "http://localhost:9091/api/users",
-      headers: {
-        "Access-Control-AllowOrigin": "*",
-      }
-    }).then(res=>{
-      var tasksArray = res.data;
-      console.log(tasksArray);
-
-      const users = tasksArray.map((user) =>({
+    GanttChartRepo.fetchUsers()
+    .then((data)=>{
+      const users = data.data.map((user) =>({
         key : user.id.toString(),
         label : user.username
       }))
-
+      
       this.setState({
         users : users
       })
@@ -119,7 +106,7 @@ class App extends Component {
     let text = item && item.text ? ` (${item.text})` : "";
     let message = `${type} ${action}: ${id} ${text}`;
     if (type === "link" && action !== "delete") {
-      console.log("link")
+      console.log(item.target)
       message += ` ( source: ${item.source}, target: ${item.target} )`;
     }
     this.addMessage(message);
