@@ -23,64 +23,62 @@ public class TaskRestController {
 
     @GetMapping()
     public List<Task> findAll(@RequestParam(required = false) String filter,
-                              @RequestParam(required = false) Long userId){
-        if(filter!=null){
-            switch (filter){
+                              @RequestParam(required = false) Long userId) {
+        if (filter != null) {
+            switch (filter) {
                 case "non-dependent":
                     return this.taskService.tasksWithoutDependencies();
                 case "completed-dependent-tasks":
                     return this.taskService.completedDependentTasks();
                 case "non-assigned":
                     return this.taskService.withoutAssignees();
-                case "user-and-est-times":
-                    return this.taskService.findAllByUser(userId);
             }
-       }
+        }
+        if (userId != null) {
+            return this.taskService.findAllByUser(userId);
+        }
         return this.taskService.findAll();
     }
 
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Task> findById(@PathVariable Long id){
+    public ResponseEntity<Task> findById(@PathVariable Long id) {
         return this.taskService.findById(id)
                 .map(task -> ResponseEntity.ok().body(task))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/status")
-    public List<Status> getStatuses () {
+    public List<Status> getStatuses() {
         return List.of(Status.values());
     }
 
 
-
-
     @PostMapping("/add-task")
-    public ResponseEntity<Task>save(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<Task> save(@RequestBody TaskDTO taskDTO) {
         return this.taskService.create(taskDTO.getTitle(),
                         taskDTO.getDescription(),
                         taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
                         taskDTO.getDependsOn(),
-                            taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                        taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
                         taskDTO.getStartTime(),
                         taskDTO.getEndTime())
                 .map(
                         task -> ResponseEntity.ok().body(task))
-                .orElseGet(()->ResponseEntity.badRequest().build());
-}
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
 
     @PutMapping("/edit-task/{id}")
     public ResponseEntity<Task> save(@PathVariable Long id,
-                     @RequestBody TaskDTO taskDTO) {
+                                     @RequestBody TaskDTO taskDTO) {
 
-        return this.taskService.update(id,taskDTO.getTitle(), taskDTO.getDescription(),
+        return this.taskService.update(id, taskDTO.getTitle(), taskDTO.getDescription(),
                         taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
-                        taskDTO.getDependsOn(),taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
-                        taskDTO.getStartTime(),taskDTO.getEndTime()).map(
+                        taskDTO.getDependsOn(), taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                        taskDTO.getStartTime(), taskDTO.getEndTime()).map(
                         task -> ResponseEntity.ok().body(task)
                 )
-                .orElseGet(()->ResponseEntity.badRequest().build());
+                .orElseGet(() -> ResponseEntity.badRequest().build());
 
 
     }
@@ -88,7 +86,7 @@ public class TaskRestController {
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
         this.taskService.delete(id);
-        if(this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
+        if (this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();
     }
 
