@@ -38,6 +38,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<Task> findAllByUser(Long userId) {
+        User user = this.userRepository.findById(userId).orElseThrow(() -> new UserDoesNotExistException(userId));
+        return taskRepository.findAllByUser(user);
+    }
+
+    @Override
     public Optional<Task> findByTitle(String title) {
         return taskRepository.findByTitle(title);
     }

@@ -22,7 +22,8 @@ public class TaskRestController {
     }
 
     @GetMapping()
-    public List<Task> findAll(@RequestParam(required = false) String filter){
+    public List<Task> findAll(@RequestParam(required = false) String filter,
+                              @RequestParam(required = false) Long userId){
         if(filter!=null){
             switch (filter){
                 case "non-dependent":
@@ -31,10 +32,14 @@ public class TaskRestController {
                     return this.taskService.completedDependentTasks();
                 case "non-assigned":
                     return this.taskService.withoutAssignees();
+                case "user-and-est-times":
+                    return this.taskService.findAllByUser(userId);
             }
        }
         return this.taskService.findAll();
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> findById(@PathVariable Long id){
@@ -47,6 +52,8 @@ public class TaskRestController {
     public List<Status> getStatuses () {
         return List.of(Status.values());
     }
+
+
 
 
     @PostMapping("/add-task")

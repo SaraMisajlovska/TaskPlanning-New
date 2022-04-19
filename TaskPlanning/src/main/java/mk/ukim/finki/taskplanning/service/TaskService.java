@@ -13,6 +13,8 @@ public interface TaskService {
 
     List<Task> findAll();
 
+    List<Task> findAllByUser(Long userId);
+
     Optional<Task> findByTitle(String title);
 
     Optional<Task> create(String title, String description, String status, List<Task> dependsOn, Long userId, LocalDateTime startTime, LocalDateTime endTime);
