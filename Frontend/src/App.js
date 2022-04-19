@@ -5,6 +5,7 @@ import MessageArea from "./components/MessageArea";
 import "./App.css";
 import {gantt} from "dhtmlx-gantt";
 import GanttChartRepo from "./components/Repository/GanttChartRepo";
+import instance from "./components/CustomAxios/Axios";
 
 
 class App extends Component {
@@ -15,34 +16,36 @@ class App extends Component {
             messages: [],
             tasks: [],
             users: [],
-            statuses: []
+            statuses: [],
+            filter: null
         };
     }
 
     componentDidMount() {
         this.loadTasks();
         this.loadUsers();
-        this.loadStatuses();
-
+        this.loadStatuses();          
         gantt.config.columns = [
-            {name: "title", label: "Task title", width: "*", tree: true},
-            {name: "start_date", label: "Start time", align: "center"},
-            {name: "duration", label: "Duration (days)", align: "center"},
-            {name: "add", label: "", width: 44},
+            {name: "title", label: "Task title", align:"center", width: 150, tree: true},
+            {name: "start_date", label: "Start time",width:100, align: "center"},
+            {name: "duration", label: "Duration",width:50, align: "center"},            
             {
-                name: "username", label: "Users", template: (obj) => {
-                    console.log(obj)
-                    return obj.username;
+                name: "username", label: "Users",align:"center",width:80, template: (obj) => {
+                    //console.log(obj.users)
+                    return obj.users;
                 }
-            }
+            },
+            {name: "add", label: "", width: 44}
         ];
+        
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps,prevState) {
+        gantt.refreshData();
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
             {name: "description", height: 70, map_to: "description", type: "textarea"},
-            {name: "users", height: 22, map_to: "username", type: "select", options: this.state.users},
+            {name: "users", height: 22, map_to: "username", type: "select", options: ['unassigned',...this.state.users]},
             {name: "status", height: 22, map_to: "status", type: "select", options: this.state.statuses},
             {name: "time", height: 72, map_to: "auto", type: "duration"},
             {name: "duration", height: 72, map_to: "duration", type: "date"},
@@ -52,13 +55,24 @@ class App extends Component {
         gantt.locale.labels.section_users = "Users";
         gantt.locale.labels.section_title = "Title";
         gantt.locale.labels.section_status = "Status";
-        // gantt.locale.labels.section_start_end_date = "Start and end date";
+        // gantt.locale.labels.section_start_end_date = "Start and end date"       
+        
+        gantt.templates.leftside_text = function(start, end, task){
+            return "<b>Status: </b>" + task.status;
+        };
 
+        gantt.templates.task_text=(start,end,task)=>{
+            return "<b>Description:</b>"+task.description;
+        }
+
+        // gantt.templates.rightside_text = function(start, end, task){
+        //     return "<b>Holders: </b>" + task.users;
+        // };
+        
     }
 
-
-    loadTasks = () => {
-        GanttChartRepo.fetchTasks()
+    loadTasks = (filter) => {
+        GanttChartRepo.fetchTasks(filter)
             .then((data) => {
                 var tasksArray = data.data;
                 console.log(tasksArray);
@@ -69,8 +83,11 @@ class App extends Component {
                     title: task.title.toString(),
                     start_date: task.startTime.toString().substr(0, 10),
                     duration: parseInt(task.duration.toString()),
-                    progress: parseFloat(0.2),
-                    username: task.user.username
+                    progress: 0.0,
+                    description: task.description.toString(),
+                    users: task.user == null ? "" : task.user.name,
+                    user:task.user,
+                    status:task.status
                 }));
 
                 this.setState({
@@ -129,17 +146,54 @@ class App extends Component {
             console.log(item.target)
             message += ` ( source: ${item.source}, target: ${item.target} )`;
         }
-        console.log(item);
+        
         this.addMessage(message);
-
+        //console.log(item.id);
         const startTime = new Date(item.start_date).toISOString();
         const endTime = new Date(item.end_date).toISOString();
-        console.log(startTime);
-        GanttChartRepo.createTask(item.title, item.description, item.status, item.id, startTime, endTime)
-            .then(r => {
-                this.loadTasks();
-            });
+        console.log(item.username);
+        switch(action){
+            case "create":
+                if(item.username==='undefined'){
+                        this.createTask(item.title,item.description,item.status,null,startTime,endTime);
+                }
+                else{
+                    GanttChartRepo.findUserById(item.username).then((data)=>{
+                        this.createTask(item.title,item.description,item.status,data.data,startTime,endTime);
+                    });
+                }
+                break;
+            case "update":
+                GanttChartRepo.findUserById(item.username).then((data)=>{
+                    this.updateTask(item.id,item.title,item.description,item.status,data.data,startTime,endTime);
+                });
+                break;
+            case "delete":
+                this.deleteTask(item.id)
+                break;
+        }
     };
+
+    createTask=(title,description,status,user,startTime,endTime)=>{
+        GanttChartRepo.createTask(title, description, status, user, startTime, endTime)
+        .then(r => {
+            this.loadTasks();            
+        });
+    }
+
+    updateTask=(id,title,description,status,user,startTime,endTime)=>{
+        GanttChartRepo.updateTask(id,title,description,status,user,startTime,endTime)
+        .then(r => {
+            this.loadTasks();
+        });
+    }
+
+    deleteTask=(id)=>{
+        GanttChartRepo.deleteTask(id)
+        .then(r => {
+            this.loadTasks();
+        });
+    }
 
     handleZoomChange = (zoom) => {
         this.setState({
@@ -147,17 +201,32 @@ class App extends Component {
         });
     };
 
+    filterTasks=()=>{
+        this.loadTasks(this.state.filter);
+        this.forceUpdate();
+    }
+
     render() {
         const {currentZoom, messages, tasks, users, statuses} = this.state;
         const data = {
-            data: tasks,
-            links: [{id: 1, source: 1, target: 4, type: "0"}],
+            data: this.state.tasks
         };
-
         return (
             <div style={{height: "100%"}}>
                 <div className="zoom-bar">
                     <Toolbar zoom={currentZoom} onZoomChange={this.handleZoomChange}/>
+                </div>
+                <div>
+                        <label>Select filter</label>
+                        <select                        
+                        onChange={(e)=> this.setState({filter:e.target.value})}
+                        >
+                                <option></option>
+                                <option value="non-dependent">Non-dependent tasks</option>
+                                <option value="completed-dependent-tasks">Completed dependent tasks</option>
+                                <option value="non-assigned">Non-assigned tasks</option>
+                        </select>
+                        <button onClick={this.filterTasks}>Filter</button>
                 </div>
                 <div id="gant-here" className="gantt-container">
                     <Gantt
