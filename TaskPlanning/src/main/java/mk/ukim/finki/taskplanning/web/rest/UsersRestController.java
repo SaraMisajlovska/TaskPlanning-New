@@ -1,11 +1,10 @@
 package mk.ukim.finki.taskplanning.web.rest;
 
+import mk.ukim.finki.taskplanning.model.Task;
 import mk.ukim.finki.taskplanning.model.User;
 import mk.ukim.finki.taskplanning.service.UserService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +21,12 @@ public class UsersRestController {
     @GetMapping
     public List<User> listUsers(){
         return this.userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> findById(@PathVariable Long id){
+        return this.userService.findUserById(id)
+                .map(task -> ResponseEntity.ok().body(task))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

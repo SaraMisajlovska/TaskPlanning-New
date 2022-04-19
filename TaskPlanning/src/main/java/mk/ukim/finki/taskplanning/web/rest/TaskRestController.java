@@ -21,8 +21,18 @@ public class TaskRestController {
         this.taskService = taskService;
     }
 
-    @GetMapping
-    public List<Task> findAll(){
+    @GetMapping()
+    public List<Task> findAll(@RequestParam(required = false) String filter){
+        if(filter!=null){
+            switch (filter){
+                case "non-dependent":
+                    return this.taskService.tasksWithoutDependencies();
+                case "completed-dependent-tasks":
+                    return this.taskService.completedDependentTasks();
+                case "non-assigned":
+                    return this.taskService.withoutAssignees();
+            }
+       }
         return this.taskService.findAll();
     }
 
@@ -74,4 +84,5 @@ public class TaskRestController {
         if(this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();
     }
+
 }

@@ -15,4 +15,6 @@ public interface UserService {
     User register(String name, String surname, String username, String password, String repeatPassword, List<Task> tasks );
 
     List<User> findAll();
+
+    Optional<User> findUserById(Long id);
 }
