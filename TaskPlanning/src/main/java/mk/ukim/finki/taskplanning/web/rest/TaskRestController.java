@@ -33,6 +33,11 @@ public class TaskRestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/status")
+    public List<Status> getStatuses () {
+        return List.of(Status.values());
+    }
+
 
     @PostMapping("/add-task")
     public ResponseEntity<Task>save(@RequestBody TaskDTO taskDTO) {
@@ -40,7 +45,7 @@ public class TaskRestController {
                         taskDTO.getDescription(),
                         taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
                         taskDTO.getDependsOn(),
-                        taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
+                            taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
                         taskDTO.getStartTime(),
                         taskDTO.getEndTime())
                 .map(
