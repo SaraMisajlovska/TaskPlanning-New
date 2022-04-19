@@ -3,9 +3,6 @@ import Gantt from "./components/Gantt";
 import Toolbar from "./components/Toolbar";
 import MessageArea from "./components/MessageArea";
 import "./App.css";
-import axios from "axios";
-import {useState} from "react/cjs/react.production.min";
-import {useEffect} from "react/cjs/react.production.min";
 import {gantt} from "dhtmlx-gantt";
 import GanttChartRepo from "./components/Repository/GanttChartRepo";
 
@@ -17,23 +14,25 @@ class App extends Component {
             currentZoom: "Days",
             messages: [],
             tasks: [],
-            users: []
+            users: [],
+            statuses: []
         };
     }
 
     componentDidMount() {
-        this.fetchTasks();
+        this.loadTasks();
         this.loadUsers();
+        this.loadStatuses();
 
         gantt.config.columns = [
             {name: "title", label: "Task title", width: "*", tree: true},
-            //{name: "description", label: "Task description", width: "*", tree: true},
-            {name: "start-date", label: "Start time", align: "center"},
+            {name: "start_date", label: "Start time", align: "center"},
             {name: "duration", label: "Duration (days)", align: "center"},
             {name: "add", label: "", width: 44},
             {
-                name: "user_id", label: "Users", template: (obj) => {
-                    return obj.user_id;
+                name: "username", label: "Users", template: (obj) => {
+                    console.log(obj)
+                    return obj.username;
                 }
             }
         ];
@@ -43,33 +42,35 @@ class App extends Component {
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
             {name: "description", height: 70, map_to: "description", type: "textarea"},
-            {name: "users", height: 22, map_to: "user_id", type: "select", options: this.state.users},
-            {name: "time", height: 72, map_to: "start-date", type: "duration"},
-            {name: "duration", height: 72, map_to: "duration", type: "duration"},
+            {name: "users", height: 22, map_to: "username", type: "select", options: this.state.users},
+            {name: "status", height: 22, map_to: "status", type: "select", options: this.state.statuses},
+            {name: "time", height: 72, map_to: "auto", type: "duration"},
+            {name: "duration", height: 72, map_to: "duration", type: "date"},
             // {name: "start_time", height: 72, map_to: "start-time", type: "time"}
         ]
 
         gantt.locale.labels.section_users = "Users";
         gantt.locale.labels.section_title = "Title";
+        gantt.locale.labels.section_status = "Status";
         // gantt.locale.labels.section_start_end_date = "Start and end date";
-
 
     }
 
 
-
-    fetchTasks = () => {
+    loadTasks = () => {
         GanttChartRepo.fetchTasks()
             .then((data) => {
                 var tasksArray = data.data;
+                console.log(tasksArray);
 
+                // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
                     id: task.id.toString(),
-                    text: task.title.toString(),
+                    title: task.title.toString(),
                     start_date: task.startTime.toString().substr(0, 10),
                     duration: parseInt(task.duration.toString()),
                     progress: parseFloat(0.2),
-                    user_id: task.user.username
+                    username: task.user.username
                 }));
 
                 this.setState({
@@ -96,6 +97,20 @@ class App extends Component {
             })
     }
 
+    loadStatuses = () => {
+        GanttChartRepo.fetchStatuses()
+            .then((response) => {
+                const statuses = response.data.map((status) => ({
+                    key: status.toString(),
+                    label: status.toString()
+                }))
+
+                this.setState({
+                    statuses: statuses
+                })
+            })
+    }
+
     addMessage(message) {
         const maxLogLength = 5;
         const newMessage = {message};
@@ -114,8 +129,16 @@ class App extends Component {
             console.log(item.target)
             message += ` ( source: ${item.source}, target: ${item.target} )`;
         }
-        console.log("Added task is:" + item);
+        console.log(item);
         this.addMessage(message);
+
+        const startTime = new Date(item.start_date).toISOString();
+        const endTime = new Date(item.end_date).toISOString();
+        console.log(startTime);
+        GanttChartRepo.createTask(item.title, item.description, item.status, item.id, startTime, endTime)
+            .then(r => {
+                this.loadTasks();
+            });
     };
 
     handleZoomChange = (zoom) => {
@@ -125,7 +148,7 @@ class App extends Component {
     };
 
     render() {
-        const {currentZoom, messages, tasks, users} = this.state;
+        const {currentZoom, messages, tasks, users, statuses} = this.state;
         const data = {
             data: tasks,
             links: [{id: 1, source: 1, target: 4, type: "0"}],
