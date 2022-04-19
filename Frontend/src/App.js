@@ -5,7 +5,7 @@ import MessageArea from "./components/MessageArea";
 import "./App.css";
 import {gantt} from "dhtmlx-gantt";
 import GanttChartRepo from "./components/Repository/GanttChartRepo";
-import instance from "./components/CustomAxios/Axios";
+
 
 
 class App extends Component {
@@ -17,35 +17,41 @@ class App extends Component {
             tasks: [],
             users: [],
             statuses: [],
-            filter: null
+            filter: null,
+            selectedUser: ''
         };
     }
 
     componentDidMount() {
         this.loadTasks();
         this.loadUsers();
-        this.loadStatuses();          
+        this.loadStatuses();
         gantt.config.columns = [
-            {name: "title", label: "Task title", align:"center", width: 150, tree: true},
-            {name: "start_date", label: "Start time",width:100, align: "center"},
-            {name: "duration", label: "Duration",width:50, align: "center"},            
+            {name: "title", label: "Task title", align: "center", width: 150, tree: true},
+            {name: "start_date", label: "Start time", width: 100, align: "center"},
+            {name: "duration", label: "Duration", width: 50, align: "center"},
             {
-                name: "username", label: "Users",align:"center",width:80, template: (obj) => {
+                name: "username", label: "Users", align: "center", width: 80, template: (obj) => {
                     //console.log(obj.users)
                     return obj.users;
                 }
             },
             {name: "add", label: "", width: 44}
         ];
-        
     }
 
-    componentDidUpdate(prevProps,prevState) {
+    componentDidUpdate(prevProps, prevState) {
         gantt.refreshData();
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
             {name: "description", height: 70, map_to: "description", type: "textarea"},
-            {name: "users", height: 22, map_to: "username", type: "select", options: ['unassigned',...this.state.users]},
+            {
+                name: "users",
+                height: 22,
+                map_to: "username",
+                type: "select",
+                options: ['unassigned', ...this.state.users]
+            },
             {name: "status", height: 22, map_to: "status", type: "select", options: this.state.statuses},
             {name: "time", height: 72, map_to: "auto", type: "duration"},
             {name: "duration", height: 72, map_to: "duration", type: "date"},
@@ -56,26 +62,25 @@ class App extends Component {
         gantt.locale.labels.section_title = "Title";
         gantt.locale.labels.section_status = "Status";
         // gantt.locale.labels.section_start_end_date = "Start and end date"       
-        
-        gantt.templates.leftside_text = function(start, end, task){
+
+        gantt.templates.leftside_text = function (start, end, task) {
             return "<b>Status: </b>" + task.status;
         };
 
-        gantt.templates.task_text=(start,end,task)=>{
-            return "<b>Description:</b>"+task.description;
+        gantt.templates.task_text = (start, end, task) => {
+            return "<b>Description:</b>" + task.description;
         }
 
         // gantt.templates.rightside_text = function(start, end, task){
         //     return "<b>Holders: </b>" + task.users;
         // };
-        
+
     }
 
-    loadTasks = (filter) => {
-        GanttChartRepo.fetchTasks(filter)
+    loadTasks = (filter, selectedUser) => {
+        GanttChartRepo.fetchTasks(filter, selectedUser)
             .then((data) => {
-                var tasksArray = data.data;
-                console.log(tasksArray);
+                const tasksArray = data.data;
 
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
@@ -86,17 +91,22 @@ class App extends Component {
                     progress: 0.0,
                     description: task.description.toString(),
                     users: task.user == null ? "" : task.user.name,
-                    user:task.user,
-                    status:task.status
+                    user: task.user,
+                    status: task.status
                 }));
 
+                console.log('updatedTasks');
+                console.log(updatedTasks);
+
                 this.setState({
-                    tasks: updatedTasks,
+                    tasks: updatedTasks
                 });
 
                 gantt.parse({
                     data: updatedTasks,
                 });
+                console.log('state tasks after update');
+                console.log(this.state.tasks);
             })
     }
 
@@ -146,53 +156,54 @@ class App extends Component {
             console.log(item.target)
             message += ` ( source: ${item.source}, target: ${item.target} )`;
         }
-        
+
         this.addMessage(message);
         //console.log(item.id);
         const startTime = new Date(item.start_date).toISOString();
         const endTime = new Date(item.end_date).toISOString();
         console.log(item.username);
-        switch(action){
+        switch (action) {
             case "create":
-                if(item.username==='undefined'){
-                        this.createTask(item.title,item.description,item.status,null,startTime,endTime);
-                }
-                else{
-                    GanttChartRepo.findUserById(item.username).then((data)=>{
-                        this.createTask(item.title,item.description,item.status,data.data,startTime,endTime);
+                if (item.username === 'undefined') {
+                    this.createTask(item.title, item.description, item.status, null, startTime, endTime);
+                } else {
+                    GanttChartRepo.findUserById(item.username).then((data) => {
+                        this.createTask(item.title, item.description, item.status, data.data, startTime, endTime);
                     });
                 }
                 break;
             case "update":
-                GanttChartRepo.findUserById(item.username).then((data)=>{
-                    this.updateTask(item.id,item.title,item.description,item.status,data.data,startTime,endTime);
+                GanttChartRepo.findUserById(item.username).then((data) => {
+                    this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime);
                 });
                 break;
             case "delete":
                 this.deleteTask(item.id)
                 break;
+            default:
+                break;
         }
     };
 
-    createTask=(title,description,status,user,startTime,endTime)=>{
+    createTask = (title, description, status, user, startTime, endTime) => {
         GanttChartRepo.createTask(title, description, status, user, startTime, endTime)
-        .then(r => {
-            this.loadTasks();            
-        });
+            .then(() => {
+                this.loadTasks();
+            });
     }
 
-    updateTask=(id,title,description,status,user,startTime,endTime)=>{
-        GanttChartRepo.updateTask(id,title,description,status,user,startTime,endTime)
-        .then(r => {
-            this.loadTasks();
-        });
+    updateTask = (id, title, description, status, user, startTime, endTime) => {
+        GanttChartRepo.updateTask(id, title, description, status, user, startTime, endTime)
+            .then(() => {
+                this.loadTasks();
+            });
     }
 
-    deleteTask=(id)=>{
+    deleteTask = (id) => {
         GanttChartRepo.deleteTask(id)
-        .then(r => {
-            this.loadTasks();
-        });
+            .then(() => {
+                this.loadTasks();
+            });
     }
 
     handleZoomChange = (zoom) => {
@@ -201,8 +212,8 @@ class App extends Component {
         });
     };
 
-    filterTasks=()=>{
-        this.loadTasks(this.state.filter);
+    filterTasks = () => {
+        this.loadTasks(this.state.filter, this.state.selectedUser);
         this.forceUpdate();
     }
 
@@ -211,22 +222,36 @@ class App extends Component {
         const data = {
             data: this.state.tasks
         };
+
+        const usersMapped = [...this.state.users];
+
+        const userOptions = usersMapped.map(user => <option key={user.key} value={user.key}>{user.label}</option>)
+
         return (
             <div style={{height: "100%"}}>
                 <div className="zoom-bar">
                     <Toolbar zoom={currentZoom} onZoomChange={this.handleZoomChange}/>
                 </div>
                 <div>
-                        <label>Select filter</label>
-                        <select                        
-                        onChange={(e)=> this.setState({filter:e.target.value})}
+                    <label>Select filter</label>
+                    <select
+                        onChange={(e) => this.setState({filter: e.target.value})}
+                    >
+                        <option/>
+                        <option value="non-dependent">Non-dependent tasks</option>
+                        <option value="completed-dependent-tasks">Completed dependent tasks</option>
+                        <option value="non-assigned">Non-assigned tasks</option>
+                    </select>
+                    <div>
+                        <label>Select user</label>
+                        <select
+                            onChange={(e) => this.setState({selectedUser: e.target.value})}
                         >
-                                <option></option>
-                                <option value="non-dependent">Non-dependent tasks</option>
-                                <option value="completed-dependent-tasks">Completed dependent tasks</option>
-                                <option value="non-assigned">Non-assigned tasks</option>
+                            <option/>
+                            {userOptions}
                         </select>
-                        <button onClick={this.filterTasks}>Filter</button>
+                    </div>
+                    <button onClick={this.filterTasks}>Filter</button>
                 </div>
                 <div id="gant-here" className="gantt-container">
                     <Gantt

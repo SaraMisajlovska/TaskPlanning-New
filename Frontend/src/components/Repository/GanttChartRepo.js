@@ -1,10 +1,11 @@
 import axios from "../CustomAxios/Axios";
 
 const GanttChartRepo = {
-    fetchTasks: (taskFilter) => {
+    fetchTasks: (taskFilter, selectedUser) => {
         return axios.get("/tasks",{
             params:{
-                filter : taskFilter
+                filter : taskFilter,
+                userId : selectedUser
             }
         })
     },
