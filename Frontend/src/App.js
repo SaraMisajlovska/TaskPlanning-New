@@ -41,6 +41,17 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if(prevState.tasks.length !== this.state.tasks.length){
+            this.forceUpdate();
+            console.log(prevState.tasks);
+            console.log(this.state.tasks)
+            gantt.parse({
+                data: this.state.tasks
+            });
+            console.log(this.state.tasks)
+            gantt.clearAll();
+        }
+        
         gantt.refreshData();
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
@@ -70,11 +81,6 @@ class App extends Component {
         gantt.templates.task_text = (start, end, task) => {
             return "<b>Description:</b>" + task.description;
         }
-
-        // gantt.templates.rightside_text = function(start, end, task){
-        //     return "<b>Holders: </b>" + task.users;
-        // };
-
     }
 
     loadTasks = (filter, selectedUser) => {
@@ -95,9 +101,6 @@ class App extends Component {
                     status: task.status
                 }));
 
-                console.log('updatedTasks');
-                console.log(updatedTasks);
-
                 this.setState({
                     tasks: updatedTasks
                 });
@@ -105,8 +108,6 @@ class App extends Component {
                 gantt.parse({
                     data: updatedTasks,
                 });
-                console.log('state tasks after update');
-                console.log(this.state.tasks);
             })
     }
 
@@ -158,7 +159,7 @@ class App extends Component {
         }
 
         this.addMessage(message);
-        //console.log(item.id);
+
         const startTime = new Date(item.start_date).toISOString();
         const endTime = new Date(item.end_date).toISOString();
         console.log(item.username);

@@ -3,9 +3,9 @@ import { gantt } from 'dhtmlx-gantt';
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
 
 export default class Gantt extends Component {
-
   // instance of gantt.dataProcessor
   dataProcessor = null;
+
 
   initZoom() {
     gantt.ext.zoom.init({
@@ -76,16 +76,22 @@ export default class Gantt extends Component {
   }
 
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.zoom !== nextProps.zoom;
-  }
+  // shouldComponentUpdate(nextProps) {
+  //   //ovde changes
+  //   return this.props.zoom !== nextProps.zoom;
+  // }
 
-  componentDidMount() {
+  componentDidMount() {    
     gantt.config.date_format = "%Y-%m-%d %H:%i";
     const { tasks } = this.props;
     gantt.init(this.ganttContainer);
     this.initGanttDataProcessor();
     gantt.parse(tasks);
+  }
+
+  componentDidUpdate(prevProps,prevState){
+    const { tasks } = this.props;
+    gantt.parse(tasks);  
   }
 
   componentWillUnmount() {
