@@ -63,13 +63,13 @@ export default class Gantt extends Component {
 
         // if onDataUpdated changes returns a permanent id of the created item, you can return it from here so dhtmlxGantt could apply it
         // resolve({id: databaseId});
-        console.log(item)
-        console.log(item.title)
-        console.log(item.description)
-        console.log(item.username)
+        // console.log(item)
+        // console.log(item.title)
+        // console.log(item.description)
+        // console.log(item.username)
 
-        console.log("ID " + resolve({id: id}))
-        console.log(gantt.getLinks())
+        // console.log("ID " + resolve({id: id}))
+        // console.log(gantt.getLinks())
         return resolve();
       });
     });
