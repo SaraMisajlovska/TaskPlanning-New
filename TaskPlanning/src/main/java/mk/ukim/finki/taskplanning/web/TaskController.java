@@ -153,7 +153,7 @@ public class TaskController {
                              @RequestParam(required = false) String endTime) {
 
         try {
-            taskService.update(id, title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime));
+            taskService.update(id, title, description, status, dependsOn, userId, startTime.equals("") ? null: LocalDateTime.parse(startTime), endTime.equals("") ? null : LocalDateTime.parse(endTime),0.0);
         } catch (TimeNotAllowedException timeNotAllowedException) {
             return String.format("redirect:/tasks/edit-task/%d?error=" + timeNotAllowedException.getMessage(), id);
         }

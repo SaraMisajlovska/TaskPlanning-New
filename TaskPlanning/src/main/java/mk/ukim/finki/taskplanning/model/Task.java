@@ -38,6 +38,9 @@ public class Task {
     @Nullable
     private LocalDateTime endTime;
 
+    @Nullable
+    private Double progress;
+
 
     public String getUserName(){
         if(this.user==null){
@@ -49,7 +52,7 @@ public class Task {
     public Task() {
     }
 
-    public Task( String title, String description, Status status, List<Task> dependsOn, User user, LocalDateTime startTime, LocalDateTime endTime) {
+    public Task( String title, String description, Status status, List<Task> dependsOn, User user, LocalDateTime startTime, LocalDateTime endTime,Double progress) {
         this.title = title;
         this.description = description;
         this.status = status;
@@ -57,6 +60,7 @@ public class Task {
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.progress=progress;
     }
 
 }

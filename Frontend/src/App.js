@@ -92,7 +92,7 @@ class App extends Component {
                     title: task.title.toString(),
                     start_date: task.startTime.toString().substr(0, 10),
                     duration: parseInt(task.duration.toString()),
-                    progress: 0.0,
+                    progress: task.progress,
                     description: task.description.toString(),
                     users: task.user == null ? "" : task.user.name,
                     user: task.user,
@@ -163,6 +163,7 @@ class App extends Component {
         // console.log(item);
         // console.log(item.user);
         // console.log(item.username)
+        // console.log(item.progress)
         switch (action) {
             case "create":
                 if (item.username === 'undefined') {
@@ -178,25 +179,25 @@ class App extends Component {
             case "update":           
                 if(item.user!='' && item.username!='undefined'){
                     GanttChartRepo.findUserById(item.user.id).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime);
+                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
                 if(item.user==="" && item.username){
                     GanttChartRepo.findUserById(item.username).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime);
+                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
                 if(item.user==="" && item.username===undefined){
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime);
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
 
-                if(item.user && item.username==='undefined'){                    
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime);
+                if(item.user && item.username==='undefined'){                
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
                 break;
@@ -217,8 +218,8 @@ class App extends Component {
             });
     }
 
-    updateTask = (id, title, description, status, user, startTime, endTime) => {
-        GanttChartRepo.updateTask(id, title, description, status, user, startTime, endTime)
+    updateTask = (id, title, description, status, user, startTime, endTime,progress) => {
+        GanttChartRepo.updateTask(id, title, description, status, user, startTime, endTime,progress)
             .then(() => {
                 this.loadTasks();
             });

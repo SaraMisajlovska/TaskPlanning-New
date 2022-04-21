@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
                 throw new TimeNotAllowedException();
             }
         }
-        Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime);
+        Task t = new Task(title, description, Status.valueOf(status), dependsOn, user, startTime, endTime,0.0);
         if(startTime!=null && endTime == null){
             t.setDuration(1L);
         }
@@ -91,7 +91,8 @@ public class TaskServiceImpl implements TaskService {
                                  List<Task> dependsOn,
                                  Long userId,
                                  LocalDateTime startTime,
-                                 LocalDateTime endTime) {
+                                 LocalDateTime endTime,
+                                 Double progress) {
 
         if (startTime != null && endTime != null) {
             if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
@@ -110,6 +111,14 @@ public class TaskServiceImpl implements TaskService {
         task.setEndTime(endTime == null ? task.getEndTime() : endTime);
 
         task.setUser(user);
+
+        if(progress==null){
+            task.setProgress(task.getProgress());
+        }
+
+        if(progress!=null){
+            task.setProgress(progress);
+        }
 
         if(startTime!=null && endTime == null){
             task.setDuration(1L);

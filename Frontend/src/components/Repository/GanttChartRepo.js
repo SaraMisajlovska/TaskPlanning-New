@@ -26,7 +26,7 @@ const GanttChartRepo = {
                 "endTime": endDate
             })
     },
-    updateTask: (id,title, description, status, user, startDate, endDate) =>{
+    updateTask: (id,title, description, status, user, startDate, endDate,progress) =>{
         return axios.put(`/tasks/edit-task/${id}`,
         {
             "id":id,
@@ -35,7 +35,8 @@ const GanttChartRepo = {
             "status": status,
             "user": user,
             "startTime": startDate,
-            "endTime": endDate
+            "endTime": endDate,
+            "progress" : progress
         })
     },
     deleteTask: (id)=>{

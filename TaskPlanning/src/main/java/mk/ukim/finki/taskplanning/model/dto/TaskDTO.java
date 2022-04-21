@@ -26,6 +26,8 @@ public class TaskDTO {
 
     private LocalDateTime endTime;
 
+    private Double progress;
+
     public TaskDTO() {
     }
 
@@ -37,9 +39,10 @@ public class TaskDTO {
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.progress=0.0;
     }
 
-    public TaskDTO(Long id, String title, String description, Status status, List<Task> dependsOn, User user, LocalDateTime startTime, LocalDateTime endTime) {
+    public TaskDTO(Long id, String title, String description, Status status, List<Task> dependsOn, User user, LocalDateTime startTime, LocalDateTime endTime,Double progress) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -48,6 +51,7 @@ public class TaskDTO {
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.progress=progress;
     }
 
 }

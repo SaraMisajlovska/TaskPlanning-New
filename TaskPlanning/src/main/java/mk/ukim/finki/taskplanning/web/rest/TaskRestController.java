@@ -75,7 +75,7 @@ public class TaskRestController {
         return this.taskService.update(id, taskDTO.getTitle(), taskDTO.getDescription(),
                         taskDTO.getStatus() == null ? Status.todo.toString() : taskDTO.getStatus().toString(),
                         taskDTO.getDependsOn(), taskDTO.getUser() == null ? null : taskDTO.getUser().getId(),
-                        taskDTO.getStartTime(), taskDTO.getEndTime()).map(
+                        taskDTO.getStartTime(), taskDTO.getEndTime(),taskDTO.getProgress()).map(
                         task -> ResponseEntity.ok().body(task)
                 )
                 .orElseGet(() -> ResponseEntity.badRequest().build());
