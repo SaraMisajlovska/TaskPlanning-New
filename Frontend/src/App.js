@@ -7,7 +7,6 @@ import {gantt} from "dhtmlx-gantt";
 import GanttChartRepo from "./components/Repository/GanttChartRepo";
 
 
-
 class App extends Component {
     constructor(props) {
         super(props);
@@ -17,8 +16,10 @@ class App extends Component {
             tasks: [],
             users: [],
             statuses: [],
+            links: [],
             filter: null,
-            selectedUser: ''
+            selectedUser: '',
+            counter: 0
         };
     }
 
@@ -41,14 +42,14 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(prevState.tasks.length !== this.state.tasks.length){
-            this.forceUpdate();           
+        if (prevState.tasks.length !== this.state.tasks.length) {
+            this.forceUpdate();
             gantt.parse({
                 data: this.state.tasks
             });
             gantt.clearAll();
         }
-        
+
         gantt.refreshData();
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
@@ -64,13 +65,14 @@ class App extends Component {
             {name: "time", height: 72, map_to: "auto", type: "duration"},
             {name: "duration", height: 72, map_to: "duration", type: "date"},
             // {name: "start_time", height: 72, map_to: "start-time", type: "time"}
-        ]
 
+        ]
         gantt.locale.labels.section_users = "Users";
         gantt.locale.labels.section_title = "Title";
         gantt.locale.labels.section_status = "Status";
-        // gantt.locale.labels.section_start_end_date = "Start and end date"      
-         
+
+        // gantt.locale.labels.section_start_end_date = "Start and end date"
+
 
         gantt.templates.leftside_text = function (start, end, task) {
             return "<b>Status: </b>" + task.status;
@@ -86,6 +88,9 @@ class App extends Component {
             .then((data) => {
                 const tasksArray = data.data;
 
+
+                let tempLinks = [];
+                let currentId = this.state.counter;
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
                     id: task.id.toString(),
@@ -96,15 +101,44 @@ class App extends Component {
                     description: task.description.toString(),
                     users: task.user == null ? "" : task.user.name,
                     user: task.user,
-                    status: task.status
+                    status: task.status,
+                    depends_on: [...task.dependsOn]
                 }));
 
+                updatedTasks.forEach((mapped) => {
+                    if (mapped.depends_on.length > 0) {
+                        mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
+                            gantt.addLink({
+                                id: currentId,
+                                source: taskWhichMappedDependsOn.id,
+                                target: mapped.id,
+                                type: gantt.config.links.finish_to_start
+                            })
+
+                            tempLinks.push(gantt.getLink(currentId));
+                            currentId++;
+                        })
+                    }
+                });
+                console.log(tempLinks);
+
+                //ovoj code tuka e za da se najde task po source i target id namesto linkid. ne treba tuka ama ke ni treba kaj update i guess
+                        var linkss = gantt.serialize().links;                             //returns all links
+                        for(var i=0;i<linkss.length; i++){                              //goes over all links
+                            if ( (linkss[i].source === 24 ) && (linkss[i].target === '8') )
+                                var linkId = linkss[i].id;
+
+                        }
+
                 this.setState({
-                    tasks: updatedTasks
+                    tasks: updatedTasks,
+                    links: tempLinks,
+                    counter: currentId
                 });
 
                 gantt.parse({
                     data: updatedTasks,
+                    links: tempLinks
                 });
             })
     }
@@ -152,7 +186,7 @@ class App extends Component {
         let text = item && item.title ? ` (${item.title})` : "";
         let message = `${type} ${action}: ${id} ${text}`;
         if (type === "link" && action !== "delete") {
-            console.log(item.target)
+            console.log(item.target);
             message += ` ( source: ${item.source}, target: ${item.target} )`;
         }
 
@@ -176,28 +210,28 @@ class App extends Component {
                     break;
                 }
 
-            case "update":           
-                if(item.user!='' && item.username!='undefined'){
+            case "update":
+                if (item.user != '' && item.username != 'undefined') {
                     GanttChartRepo.findUserById(item.user.id).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime,item.progress);
+                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime, item.progress);
                     });
                     break;
                 }
 
-                if(item.user==="" && item.username){
+                if (item.user === "" && item.username) {
                     GanttChartRepo.findUserById(item.username).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime,item.progress);
+                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime, item.progress);
                     });
                     break;
                 }
 
-                if(item.user==="" && item.username===undefined){
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
+                if (item.user === "" && item.username === undefined) {
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime, item.progress);
                     break;
                 }
 
-                if(item.user && item.username==='undefined'){                
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
+                if (item.user && item.username === 'undefined') {
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime, item.progress);
                     break;
                 }
                 break;
@@ -218,8 +252,8 @@ class App extends Component {
             });
     }
 
-    updateTask = (id, title, description, status, user, startTime, endTime,progress) => {
-        GanttChartRepo.updateTask(id, title, description, status, user, startTime, endTime,progress)
+    updateTask = (id, title, description, status, user, startTime, endTime, progress) => {
+        GanttChartRepo.updateTask(id, title, description, status, user, startTime, endTime, progress)
             .then(() => {
                 this.loadTasks();
             });
