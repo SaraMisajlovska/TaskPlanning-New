@@ -192,12 +192,25 @@ class App extends Component {
 
         this.addMessage(message);
 
-        const startTime = new Date(item.start_date).toISOString();
-        const endTime = new Date(item.end_date).toISOString();
-        // console.log(item);
-        // console.log(item.user);
-        // console.log(item.username)
-        // console.log(item.progress)
+        console.log(item.start_date);
+        console.log(item.end_date);
+
+
+        const startingTimeToSet = new Date(item.start_date)
+        const endingTimeToset = new Date(item.end_date);
+
+        startingTimeToSet.setUTCHours(parseInt(item.start_date.toString().substr(11,13)),parseInt(item.start_date.toString().substr(3)))
+        startingTimeToSet.setUTCMonth(parseInt(item.start_date.toString().substr(6,7))-1,parseInt(item.start_date.toString().substr(8,10)))
+
+        endingTimeToset.setUTCHours(parseInt(item.end_date.toString().substr(11,13)),parseInt(item.end_date.toString().substr(3)))
+        endingTimeToset.setUTCMonth(parseInt(item.end_date.toString().substr(6,7))-1,parseInt(item.end_date.toString().substr(8,10)))
+
+        const startTime=startingTimeToSet.toISOString();
+        const endTime=endingTimeToset.toISOString();
+
+        console.log(startTime);
+        console.log(endTime)
+        
         switch (action) {
             case "create":
                 if (item.username === 'undefined') {
@@ -210,28 +223,32 @@ class App extends Component {
                     break;
                 }
 
-            case "update":
-                if (item.user != '' && item.username != 'undefined') {
-                    GanttChartRepo.findUserById(item.user.id).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime, item.progress);
+            case "update":           
+                if(item.user!='' && item.username!='undefined'){
+                    GanttChartRepo.findUserById(item.user.id).then((response) => {
+                        this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
-                if (item.user === "" && item.username) {
-                    GanttChartRepo.findUserById(item.username).then((data) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, data.data, startTime, endTime, item.progress);
+                if(item.user==="" && item.username){
+                    if(item.username==='undefined'){
+                        this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
+                        break;
+                    }
+                    GanttChartRepo.findUserById(item.username).then((response) => {
+                        this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
-                if (item.user === "" && item.username === undefined) {
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime, item.progress);
+                if(item.user==="" && item.username===undefined){
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
 
-                if (item.user && item.username === 'undefined') {
-                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime, item.progress);
+                if(item.user && item.username==='undefined'){                
+                    this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
                 break;
