@@ -52,6 +52,14 @@ const GanttChartRepo = {
             "targetId": targetId
         }
         )
+    },
+    deleteDependency: (sourceId, targetId) => {
+        return axios.put("/tasks/deleteDependency",
+            {
+                "sourceId": sourceId,
+                "targetId": targetId
+            }
+        )
     }
 }
 

@@ -28,6 +28,7 @@ class App extends Component {
         this.loadUsers();
         this.loadStatuses();
         this.handleAddLinkEvent();
+        this.handleDeleteLinkEvent();
         gantt.config.columns = [
             {name: "title", label: "Task title", align: "center", width: 150, tree: true},
             {name: "start_date", label: "Start time", width: 100, align: "center"},
@@ -170,11 +171,22 @@ class App extends Component {
         });
 
     }
-
     saveLinkFromEvent = (sourceId, targetId) => {
         GanttChartRepo.saveDependency(sourceId, targetId)
             .then((response) => {
-            })
+            });
+    }
+    handleDeleteLinkEvent = () => {
+        gantt.attachEvent("onAfterLinkDelete", (id,item) =>{
+            console.log(item);
+            this.deleteLinkFromEvent(item.source, item.target);
+        })
+    }
+    deleteLinkFromEvent =  (sourceId, targetId) =>{
+        GanttChartRepo.deleteDependency(sourceId, targetId)
+            .then(resp => {
+                this.loadTasks();
+            });
     }
 
     addMessage(message) {
