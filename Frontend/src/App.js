@@ -34,7 +34,6 @@ class App extends Component {
             {name: "duration", label: "Duration", width: 50, align: "center"},
             {
                 name: "username", label: "Users", align: "center", width: 80, template: (obj) => {
-                    ////console.log(obj)
                     return obj.users;
                 }
             },
@@ -167,7 +166,6 @@ class App extends Component {
     }
     handleAddLinkEvent = () => {
         gantt.attachEvent("onAfterLinkAdd", (id, item) => {
-            console.log(item);
             this.saveLinkFromEvent(item.source, item.target);
         });
 
@@ -200,10 +198,6 @@ class App extends Component {
 
         this.addMessage(message);
 
-        console.log(item.start_date);
-        console.log(item.end_date);
-
-
         const startingTimeToSet = new Date(item.start_date)
         const endingTimeToset = new Date(item.end_date);
 
@@ -215,9 +209,6 @@ class App extends Component {
 
         const startTime=startingTimeToSet.toISOString();
         const endTime=endingTimeToset.toISOString();
-
-        console.log(startTime);
-        console.log(endTime)
 
         switch (action) {
             case "create":
@@ -297,6 +288,16 @@ class App extends Component {
         });
     };
 
+    handleFilterChange = (e) =>{
+        this.setState({
+            filter: e.target.value,
+        });
+    }
+    handleUserFilterChange =(e) =>{
+        this.setState({
+            selectedUser: e.target.value
+        });
+    }
     filterTasks = () => {
         this.loadTasks(this.state.filter, this.state.selectedUser);
         this.forceUpdate();
@@ -315,28 +316,13 @@ class App extends Component {
         return (
             <div style={{height: "100%"}}>
                 <div className="zoom-bar">
-                    <Toolbar zoom={currentZoom} onZoomChange={this.handleZoomChange}/>
-                </div>
-                <div>
-                    <label>Select filter</label>
-                    <select
-                        onChange={(e) => this.setState({filter: e.target.value})}
-                    >
-                        <option/>
-                        <option value="non-dependent">Non-dependent tasks</option>
-                        <option value="completed-dependent-tasks">Completed dependent tasks</option>
-                        <option value="non-assigned">Non-assigned tasks</option>
-                    </select>
-                    <div>
-                        <label>Select user</label>
-                        <select
-                            onChange={(e) => this.setState({selectedUser: e.target.value})}
-                        >
-                            <option/>
-                            {userOptions}
-                        </select>
-                    </div>
-                    <button onClick={this.filterTasks}>Filter</button>
+                    <Toolbar zoom={currentZoom}
+                             onZoomChange={this.handleZoomChange}
+                             onFilterChange={this.handleFilterChange}
+                             onUserFilterChange={this.handleUserFilterChange}
+                             userOptions={userOptions}
+                             onFilterClick={this.filterTasks}
+                    />
                 </div>
                 <div id="gant-here" className="gantt-container">
                     <Gantt

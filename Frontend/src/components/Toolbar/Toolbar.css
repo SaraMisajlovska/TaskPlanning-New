@@ -33,3 +33,7 @@
   color: white;
   border-color: #707070;
 }
+.right{
+  margin-left: 2%;
+  font-weight: bolder;
+}
