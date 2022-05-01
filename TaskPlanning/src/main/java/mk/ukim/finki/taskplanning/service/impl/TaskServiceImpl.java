@@ -219,6 +219,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void deleteDependency(Long sourceId, String targetId) {
+        Task sourceTask = this.taskRepository.findById(sourceId)
+                .orElseThrow(() -> new TaskDoesNotExistException(sourceId));
+
+        Task targetTask = this.taskRepository.findById(Long.parseLong(targetId))
+                .orElseThrow(() -> new TaskDoesNotExistException(Long.parseLong(targetId)));
+
+        if(targetTask.getDependsOn().contains(sourceTask)){
+            targetTask.getDependsOn().remove(sourceTask);
+            taskRepository.save(targetTask);
+        }
+    }
+
+    @Override
     public void delete(Long id) {
         taskRepository.deleteById(id);
     }

@@ -85,7 +85,7 @@ public class TaskRestController {
     }
     @PutMapping("addDependency")
     public void saveDependency(@RequestBody DependencyDTO dependencyDTO){
-           this.taskService.addDependency(dependencyDTO.getSourceId(), dependencyDTO.getTargetId());
+        this.taskService.addDependency(dependencyDTO.getSourceId(), dependencyDTO.getTargetId());
     }
 
     @DeleteMapping("/{id}/delete")
@@ -93,6 +93,10 @@ public class TaskRestController {
         this.taskService.delete(id);
         if (this.taskService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();
+    }
+    @PutMapping("/deleteDependency")
+    public void deleteById(@RequestBody DependencyDTO dependencyDTO) {
+        this.taskService.deleteDependency(dependencyDTO.getSourceId(), dependencyDTO.getTargetId());
     }
 
 }

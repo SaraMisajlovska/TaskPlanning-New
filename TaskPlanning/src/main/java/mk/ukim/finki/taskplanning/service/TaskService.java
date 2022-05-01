@@ -41,4 +41,6 @@ public interface TaskService {
 
     void addDependency(Long sourceId, String targetId);
 
+    void deleteDependency(Long sourceId, String targetId);
+
 }
