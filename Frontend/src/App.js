@@ -27,13 +27,14 @@ class App extends Component {
         this.loadTasks();
         this.loadUsers();
         this.loadStatuses();
+        this.handleAddLinkEvent();
         gantt.config.columns = [
             {name: "title", label: "Task title", align: "center", width: 150, tree: true},
             {name: "start_date", label: "Start time", width: 100, align: "center"},
             {name: "duration", label: "Duration", width: 50, align: "center"},
             {
                 name: "username", label: "Users", align: "center", width: 80, template: (obj) => {
-                    //console.log(obj.users)
+                    ////console.log(obj)
                     return obj.users;
                 }
             },
@@ -49,7 +50,6 @@ class App extends Component {
             });
             gantt.clearAll();
         }
-
         gantt.refreshData();
         gantt.config.lightbox.sections = [
             {name: "title", height: 70, map_to: "title", type: "textarea", focus: true},
@@ -65,7 +65,6 @@ class App extends Component {
             {name: "time", height: 72, map_to: "auto", type: "duration"},
             {name: "duration", height: 72, map_to: "duration", type: "date"},
             // {name: "start_time", height: 72, map_to: "start-time", type: "time"}
-
         ]
         gantt.locale.labels.section_users = "Users";
         gantt.locale.labels.section_title = "Title";
@@ -81,6 +80,7 @@ class App extends Component {
         gantt.templates.task_text = (start, end, task) => {
             return "<b>Description:</b>" + task.description;
         }
+
     }
 
     loadTasks = (filter, selectedUser) => {
@@ -102,9 +102,11 @@ class App extends Component {
                     users: task.user == null ? "" : task.user.name,
                     user: task.user,
                     status: task.status,
-                    depends_on: [...task.dependsOn]
+                    depends_on: task.dependsOn,
+
                 }));
 
+                ////console.log(updatedTasks[1].start_date)
                 updatedTasks.forEach((mapped) => {
                     if (mapped.depends_on.length > 0) {
                         mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
@@ -120,15 +122,7 @@ class App extends Component {
                         })
                     }
                 });
-                console.log(tempLinks);
 
-                //ovoj code tuka e za da se najde task po source i target id namesto linkid. ne treba tuka ama ke ni treba kaj update i guess
-                        var linkss = gantt.serialize().links;                             //returns all links
-                        for(var i=0;i<linkss.length; i++){                              //goes over all links
-                            if ( (linkss[i].source === 24 ) && (linkss[i].target === '8') )
-                                var linkId = linkss[i].id;
-
-                        }
 
                 this.setState({
                     tasks: updatedTasks,
@@ -142,6 +136,7 @@ class App extends Component {
                 });
             })
     }
+
 
     loadUsers = () => {
         GanttChartRepo.fetchUsers()
@@ -170,6 +165,19 @@ class App extends Component {
                 })
             })
     }
+    handleAddLinkEvent = () => {
+        gantt.attachEvent("onAfterLinkAdd", (id, item) => {
+            console.log(item);
+            this.saveLinkFromEvent(item.source, item.target);
+        });
+
+    }
+
+    saveLinkFromEvent = (sourceId, targetId) => {
+        GanttChartRepo.saveDependency(sourceId, targetId)
+            .then((response) => {
+            })
+    }
 
     addMessage(message) {
         const maxLogLength = 5;
@@ -186,8 +194,8 @@ class App extends Component {
         let text = item && item.title ? ` (${item.title})` : "";
         let message = `${type} ${action}: ${id} ${text}`;
         if (type === "link" && action !== "delete") {
-            console.log(item.target);
-            message += ` ( source: ${item.source}, target: ${item.target} )`;
+
+            message += `(source: ${item.source}, target: ${item.target})`;
         }
 
         this.addMessage(message);
@@ -210,7 +218,7 @@ class App extends Component {
 
         console.log(startTime);
         console.log(endTime)
-        
+
         switch (action) {
             case "create":
                 if (item.username === 'undefined') {
@@ -223,7 +231,7 @@ class App extends Component {
                     break;
                 }
 
-            case "update":           
+            case "update":
                 if(item.user!='' && item.username!='undefined'){
                     GanttChartRepo.findUserById(item.user.id).then((response) => {
                         this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
@@ -247,7 +255,7 @@ class App extends Component {
                     break;
                 }
 
-                if(item.user && item.username==='undefined'){                
+                if(item.user && item.username==='undefined'){
                     this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }

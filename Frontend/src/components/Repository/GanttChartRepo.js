@@ -44,7 +44,15 @@ const GanttChartRepo = {
     },
     findUserById: (id)=>{
         return axios.get(`/users/${id}`);
+    },
+    saveDependency: (sourceId, targetId) => {
+        return axios.put("/tasks/addDependency",
+            {
+            "sourceId": sourceId,
+            "targetId": targetId
+        }
+        )
     }
 }
 
-export default GanttChartRepo
+export default GanttChartRepo;
