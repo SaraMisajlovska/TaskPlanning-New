@@ -39,4 +39,6 @@ public interface TaskService {
 
     List<Task> completedDependentTasks();
 
+    void addDependency(Long sourceId, String targetId);
+
 }

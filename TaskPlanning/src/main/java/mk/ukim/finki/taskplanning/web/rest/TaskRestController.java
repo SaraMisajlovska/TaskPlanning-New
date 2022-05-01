@@ -2,6 +2,7 @@ package mk.ukim.finki.taskplanning.web.rest;
 
 import mk.ukim.finki.taskplanning.model.Status;
 import mk.ukim.finki.taskplanning.model.Task;
+import mk.ukim.finki.taskplanning.model.dto.DependencyDTO;
 import mk.ukim.finki.taskplanning.model.dto.TaskDTO;
 import mk.ukim.finki.taskplanning.service.TaskService;
 import mk.ukim.finki.taskplanning.service.UserService;
@@ -81,6 +82,10 @@ public class TaskRestController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
 
 
+    }
+    @PutMapping("addDependency")
+    public void saveDependency(@RequestBody DependencyDTO dependencyDTO){
+           this.taskService.addDependency(dependencyDTO.getSourceId(), dependencyDTO.getTargetId());
     }
 
     @DeleteMapping("/{id}/delete")
