@@ -234,6 +234,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void delete(Long id) {
+        Task taskToDelete = taskRepository.getById(id);
+        taskRepository.getById(id).getDependsOn().clear();
+        getOtherTasks(id).forEach(task -> task.getDependsOn().remove(taskToDelete));
         taskRepository.deleteById(id);
     }
 }

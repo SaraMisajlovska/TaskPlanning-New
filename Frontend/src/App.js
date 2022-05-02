@@ -30,15 +30,15 @@ class App extends Component {
         this.handleAddLinkEvent();
         this.handleDeleteLinkEvent();
         gantt.config.columns = [
-            {name: "title", label: "Task title", align: "center", width: 150, tree: true},
-            {name: "start_date", label: "Start time", width: 100, align: "center"},
-            {name: "duration", label: "Duration", width: 50, align: "center"},
+            {name: "title", label: "Task title", align: "center", width: 120, tree: true},
+            {name: "start_date", label: "Start time", width: 80, align: "center"},
+            {name: "duration", label: "Duration", width: 60, align: "center"},
             {
-                name: "username", label: "Users", align: "center", width: 80, template: (obj) => {
+                name: "username", label: "Users", align: "center", width: 50, template: (obj) => {
                     return obj.users;
                 }
             },
-            {name: "add", label: "", width: 44}
+            {name: "add", label: "", width: 30}
         ];
     }
 
@@ -78,7 +78,7 @@ class App extends Component {
         };
 
         gantt.templates.task_text = (start, end, task) => {
-            return "<b>Description:</b>" + task.description;
+            return task.description;
         }
 
     }
@@ -93,6 +93,7 @@ class App extends Component {
                 let currentId = this.state.counter;
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
+                    text : task.title,
                     id: task.id.toString(),
                     title: task.title.toString(),
                     start_date: task.startTime.toString().substr(0, 10),
