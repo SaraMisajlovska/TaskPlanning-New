@@ -94,7 +94,7 @@ class App extends Component {
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
                     text : task.title,
-                    id: task.id.toString(),
+                    id: task.id,
                     title: task.title.toString(),
                     start_date: task.startTime.toString().substr(0, 10),
                     duration: parseInt(task.duration.toString()),
