@@ -1,9 +1,8 @@
-import taskAxios from "../CustomAxios/taskAxios";
-import userAxios from "../CustomAxios/userAxios";
+import axios from "../CustomAxios/Axios";
 
 const GanttChartRepo = {
     fetchTasks: (taskFilter, selectedUser) => {
-        return taskAxios.get("/tasks",{
+        return axios.get("/tasks",{
             params:{
                 filter : taskFilter,
                 userId : selectedUser
@@ -11,13 +10,13 @@ const GanttChartRepo = {
         })
     },
     fetchUsers: () => {
-        return userAxios.get("/users")
+        return axios.get("/users")
     },
     fetchStatuses: () => {
-        return taskAxios.get("/tasks/status")
+        return axios.get("/tasks/status")
     },
     createTask: (title, description, status, user, startDate, endDate) => {
-        return taskAxios.post("/tasks/add-task",
+        return axios.post("/tasks/add-task",
             {
                 "title": title,
                 "description": description,
@@ -28,7 +27,7 @@ const GanttChartRepo = {
             })
     },
     updateTask: (id,title, description, status, user, startDate, endDate,progress) =>{
-        return taskAxios.put(`/tasks/edit-task/${id}`,
+        return axios.put(`/tasks/edit-task/${id}`,
         {
             "id":id,
             "title": title,
@@ -41,13 +40,13 @@ const GanttChartRepo = {
         })
     },
     deleteTask: (id)=>{
-        return taskAxios.delete(`${id}/delete`);
+        return axios.delete(`${id}/delete`);
     },
     findUserById: (id)=>{
-        return userAxios.get(`/users/${id}`);
+        return axios.get(`/users/${id}`);
     },
     saveDependency: (sourceId, targetId) => {
-        return taskAxios.put("/tasks/addDependency",
+        return axios.put("/tasks/addDependency",
             {
             "sourceId": sourceId,
             "targetId": targetId
@@ -55,7 +54,7 @@ const GanttChartRepo = {
         )
     },
     deleteDependency: (sourceId, targetId) => {
-        return taskAxios.put("/tasks/deleteDependency",
+        return axios.put("/tasks/deleteDependency",
             {
                 "sourceId": sourceId,
                 "targetId": targetId
