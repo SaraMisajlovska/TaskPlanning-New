@@ -35,7 +35,8 @@ class App extends Component {
             {name: "duration", label: "Duration", width: 60, align: "center"},
             {
                 name: "username", label: "Users", align: "center", width: 50, template: (obj) => {
-                    return obj.users;
+                    // console.log(obj)
+                    return obj.user;
                 }
             },
             {name: "add", label: "", width: 30}
@@ -92,6 +93,7 @@ class App extends Component {
 
                 let tempLinks = [];
                 let currentId = this.state.counter;
+                console.log(tasksArray)
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
                     text : task.title,
@@ -101,16 +103,18 @@ class App extends Component {
                     duration: parseInt(task.duration.toString()),
                     progress: task.progress,
                     description: task.description.toString(),
-                    users: task.user == null ? "" : task.user.name,
-                    user: task.user,
+                    users: task.user == null ? "" : task.user.username,
+                    user: task.userId,
                     status: task.status,
                     depends_on: task.dependsOn,
 
                 }));
+                console.log(updatedTasks)
 
                 ////console.log(updatedTasks[1].start_date)
                 updatedTasks.forEach((mapped) => {
                     if (mapped.depends_on.length > 0) {
+                      //  console.log(mapped)
                         mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
                             gantt.addLink({
                                 id: currentId,
@@ -145,7 +149,8 @@ class App extends Component {
             .then((data) => {
                 const users = data.data.map((user) => ({                    
                     key: user.username,
-                    label: user.username
+                    label: user.username,
+                    userId:user.id.id
                 }))
 
                 this.setState({
@@ -169,6 +174,7 @@ class App extends Component {
     }
     handleAddLinkEvent = () => {
         gantt.attachEvent("onAfterLinkAdd", (id, item) => {
+            //console.log(item.source)
             this.saveLinkFromEvent(item.source, item.target);
         });
 
@@ -239,10 +245,7 @@ class App extends Component {
 
             case "update":
                 if(item.user!='' && item.username!='undefined'){
-                 console.log(item.user)    
-                 console.log('tuka')
-
-                    GanttChartRepo.findUserByUsername(item.user.id).then((response) => {
+                    GanttChartRepo.findUserByUsername(item.username).then((response) => {
                         console.log(response)
                         this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
@@ -255,9 +258,9 @@ class App extends Component {
                         this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                         break;
                     }
-                    console.log('tuka')
+                    console.log(item)
                     GanttChartRepo.findUserByUsername(item.username).then((response) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
+                        this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
                     break;
                 }
@@ -334,7 +337,7 @@ class App extends Component {
 
         const usersMapped = [...this.state.users];
 
-        const userOptions = usersMapped.map(user => <option key={user.key} value={user.key}>{user.label}</option>)
+        const userOptions = usersMapped.map(user => <option key={user.key} value={user.userId}>{user.label}</option>)
 
         return (
             <div style={{height: "100%"}}>
