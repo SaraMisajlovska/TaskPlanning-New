@@ -111,14 +111,12 @@ class App extends Component {
                 }));
                 console.log(updatedTasks)
 
-                ////console.log(updatedTasks[1].start_date)
                 updatedTasks.forEach((mapped) => {
                     if (mapped.depends_on.length > 0) {
-                      //  console.log(mapped)
                         mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
                             gantt.addLink({
                                 id: currentId,
-                                source: taskWhichMappedDependsOn.id,
+                                source: taskWhichMappedDependsOn.id.id,
                                 target: mapped.id,
                                 type: gantt.config.links.finish_to_start
                             })
