@@ -43,6 +43,7 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        console.log(this.state.users)
         if (prevState.tasks.length !== this.state.tasks.length) {
             this.forceUpdate();
             gantt.parse({
@@ -142,8 +143,8 @@ class App extends Component {
     loadUsers = () => {
         GanttChartRepo.fetchUsers()
             .then((data) => {
-                const users = data.data.map((user) => ({
-                    key: user.id.toString(),
+                const users = data.data.map((user) => ({                    
+                    key: user.username,
                     label: user.username
                 }))
 
@@ -222,44 +223,53 @@ class App extends Component {
 
         const startTime=startingTimeToSet.toISOString();
         const endTime=endingTimeToset.toISOString();
-
+        console.log(item)
         switch (action) {
             case "create":
                 if (item.username === 'undefined') {
                     this.createTask(item.title, item.description, item.status, null, startTime, endTime);
                     break;
                 } else {
-                    GanttChartRepo.findUserById(item.username).then((response) => {
-                        this.createTask(item.title, item.description, item.status, response.data, startTime, endTime);
+                    GanttChartRepo.findUserByUsername(item.username).then((response) => {
+                        console.log(response.data)
+                        this.createTask(item.title, item.description, item.status, response.data.id.id, startTime, endTime);
                     });
                     break;
                 }
 
             case "update":
                 if(item.user!='' && item.username!='undefined'){
-                    GanttChartRepo.findUserById(item.user.id).then((response) => {
-                        this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
+                 console.log(item.user)    
+                 console.log('tuka')
+
+                    GanttChartRepo.findUserByUsername(item.user.id).then((response) => {
+                        console.log(response)
+                        this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
                 if(item.user==="" && item.username){
                     if(item.username==='undefined'){
+                        console.log('tuka')
                         this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                         break;
                     }
-                    GanttChartRepo.findUserById(item.username).then((response) => {
+                    console.log('tuka')
+                    GanttChartRepo.findUserByUsername(item.username).then((response) => {
                         this.updateTask(item.id, item.title, item.description, item.status, response.data, startTime, endTime,item.progress);
                     });
                     break;
                 }
 
                 if(item.user==="" && item.username===undefined){
+                    console.log('tuka')
                     this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
 
                 if(item.user && item.username==='undefined'){
+                    console.log('tuka')
                     this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }

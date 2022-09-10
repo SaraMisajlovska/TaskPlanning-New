@@ -82,7 +82,7 @@ export default class Gantt extends Component {
                 // console.log(item)
                 // console.log(item.title)
                 // console.log(item.description)
-                // console.log(item.username)
+
 
                 // console.log("ID " + resolve({id: id}))
                 // console.log(gantt.getLinks())
