@@ -35,7 +35,6 @@ class App extends Component {
             {name: "duration", label: "Duration", width: 60, align: "center"},
             {
                 name: "username", label: "Users", align: "center", width: 50, template: (obj) => {
-                    // console.log(obj)
                     return obj.user;
                 }
             },
@@ -44,7 +43,7 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log(this.state.users)
+        //console.log(this.state.users)
         if (prevState.tasks.length !== this.state.tasks.length) {
             this.forceUpdate();
             gantt.parse({
@@ -63,7 +62,7 @@ class App extends Component {
                 type: "select",
                 options: ['unassigned', ...this.state.users]
             },
-            {name: "status", height: 22, map_to: "status", type: "select", options: this.state.statuses},
+            {name: "status", height: 22, map_to: "status", type: "select", options:['',...this.state.statuses]},
             {name: "time", height: 72, map_to: "auto", type: "duration"},
             {name: "duration", height: 72, map_to: "duration", type: "date"},
             // {name: "start_time", height: 72, map_to: "start-time", type: "time"}
@@ -111,12 +110,14 @@ class App extends Component {
                 }));
                 console.log(updatedTasks)
 
+                ////console.log(updatedTasks[1].start_date)
                 updatedTasks.forEach((mapped) => {
                     if (mapped.depends_on.length > 0) {
+                      //  console.log(mapped)
                         mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
                             gantt.addLink({
                                 id: currentId,
-                                source: taskWhichMappedDependsOn.id.id,
+                                source: taskWhichMappedDependsOn.id,
                                 target: mapped.id,
                                 type: gantt.config.links.finish_to_start
                             })
@@ -171,18 +172,21 @@ class App extends Component {
             })
     }
     handleAddLinkEvent = () => {
+        console.log("tuka")
         gantt.attachEvent("onAfterLinkAdd", (id, item) => {
-            //console.log(item.source)
+            console.log(item)
             this.saveLinkFromEvent(item.source, item.target);
         });
 
     }
     saveLinkFromEvent = (sourceId, targetId) => {
+        console.log("tuka")
         GanttChartRepo.saveDependency(sourceId, targetId)
             .then((response) => {
             });
     }
     handleDeleteLinkEvent = () => {
+        console.log("tuka")
         gantt.attachEvent("onAfterLinkDelete", (id,item) =>{
             console.log(item);
             this.deleteLinkFromEvent(item.source, item.target);
@@ -243,7 +247,8 @@ class App extends Component {
 
             case "update":
                 if(item.user!='' && item.username!='undefined'){
-                    GanttChartRepo.findUserByUsername(item.username).then((response) => {
+                    console.log("tyka")                    
+                    GanttChartRepo.findUserByUsername(item.user).then((response) => {
                         console.log(response)
                         this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
@@ -256,7 +261,7 @@ class App extends Component {
                         this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                         break;
                     }
-                    console.log(item)
+                    console.log("tyka")
                     GanttChartRepo.findUserByUsername(item.username).then((response) => {
                         this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
