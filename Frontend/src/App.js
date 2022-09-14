@@ -43,7 +43,7 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        //console.log(this.state.users)
+        
         if (prevState.tasks.length !== this.state.tasks.length) {
             this.forceUpdate();
             gantt.parse({
@@ -92,7 +92,7 @@ class App extends Component {
 
                 let tempLinks = [];
                 let currentId = this.state.counter;
-                console.log(tasksArray)
+                  
                 // eslint-disable-next-line no-sequences
                 const updatedTasks = tasksArray.map((task) => ({
                     text : task.title,
@@ -108,16 +108,15 @@ class App extends Component {
                     depends_on: task.dependsOn,
 
                 }));
-                console.log(updatedTasks)
+                  
 
-                ////console.log(updatedTasks[1].start_date)
+                
                 updatedTasks.forEach((mapped) => {
                     if (mapped.depends_on.length > 0) {
-                      //  console.log(mapped)
                         mapped.depends_on.forEach((taskWhichMappedDependsOn) => {
                             gantt.addLink({
                                 id: currentId,
-                                source: taskWhichMappedDependsOn.id,
+                                source: taskWhichMappedDependsOn.id.id,
                                 target: mapped.id,
                                 type: gantt.config.links.finish_to_start
                             })
@@ -172,23 +171,22 @@ class App extends Component {
             })
     }
     handleAddLinkEvent = () => {
-        console.log("tuka")
         gantt.attachEvent("onAfterLinkAdd", (id, item) => {
-            console.log(item)
+              
+              
             this.saveLinkFromEvent(item.source, item.target);
         });
 
     }
     saveLinkFromEvent = (sourceId, targetId) => {
-        console.log("tuka")
+          
         GanttChartRepo.saveDependency(sourceId, targetId)
             .then((response) => {
             });
     }
     handleDeleteLinkEvent = () => {
-        console.log("tuka")
         gantt.attachEvent("onAfterLinkDelete", (id,item) =>{
-            console.log(item);
+              
             this.deleteLinkFromEvent(item.source, item.target);
         })
     }
@@ -231,7 +229,7 @@ class App extends Component {
 
         const startTime=startingTimeToSet.toISOString();
         const endTime=endingTimeToset.toISOString();
-        console.log(item)
+          
         switch (action) {
             case "create":
                 if (item.username === 'undefined') {
@@ -239,7 +237,7 @@ class App extends Component {
                     break;
                 } else {
                     GanttChartRepo.findUserByUsername(item.username).then((response) => {
-                        console.log(response.data)
+                          
                         this.createTask(item.title, item.description, item.status, response.data.id.id, startTime, endTime);
                     });
                     break;
@@ -247,9 +245,9 @@ class App extends Component {
 
             case "update":
                 if(item.user!='' && item.username!='undefined'){
-                    console.log("tyka")                    
+                      
                     GanttChartRepo.findUserByUsername(item.user).then((response) => {
-                        console.log(response)
+                          
                         this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
                     break;
@@ -257,11 +255,11 @@ class App extends Component {
 
                 if(item.user==="" && item.username){
                     if(item.username==='undefined'){
-                        console.log('tuka')
+                          
                         this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                         break;
                     }
-                    console.log("tyka")
+                      
                     GanttChartRepo.findUserByUsername(item.username).then((response) => {
                         this.updateTask(item.id, item.title, item.description, item.status, response.data.id.id, startTime, endTime,item.progress);
                     });
@@ -269,13 +267,13 @@ class App extends Component {
                 }
 
                 if(item.user==="" && item.username===undefined){
-                    console.log('tuka')
+                      
                     this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
 
                 if(item.user && item.username==='undefined'){
-                    console.log('tuka')
+                      
                     this.updateTask(item.id, item.title, item.description, item.status, null, startTime, endTime,item.progress);
                     break;
                 }
